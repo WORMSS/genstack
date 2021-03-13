@@ -1,0 +1,27 @@
+{
+  "name": "genstack",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
+  "scripts": {
+    "compile": "tsc",
+    "compile:watch": "tsc -w",
+    "test": "env TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha",
+    "start": "webpack --config webpack.config.cjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.1",
+    "chai": "^4.3.3",
+    "mocha": "^8.3.1",
+    "ts-loader": "^8.0.17",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.2",
+    "webpack": "^5.24.3",
+    "webpack-cli": "^4.5.0"
+  }
+}
