@@ -1,4 +1,4 @@
-import { RangeOptions } from '~types';
+import { RangeOptions } from '../types';
 
 export function createRange(options?: RangeOptions): Generator<number, any, undefined> {
   let start: number | undefined;

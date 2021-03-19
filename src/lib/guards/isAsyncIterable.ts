@@ -1,5 +1,5 @@
+import { isObject } from './isObject';
+
 export function isAsyncIterable<T>(obj: unknown): obj is AsyncIterable<T> {
-  return (
-    typeof obj === 'object' && !!obj && typeof (obj as any)[Symbol.asyncIterator] === 'function'
-  );
+  return isObject(obj) && typeof obj[Symbol.asyncIterator] === 'function';
 }

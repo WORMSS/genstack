@@ -1,23 +1,23 @@
 interface SpyFn {
   (...args: any[]): any;
-  readonly hasRun: boolean;
-  readonly runCount: number;
+  readonly called: boolean;
+  readonly callCount: number;
 }
 
 export function spyFn(orig?: (...args: any[]) => any): SpyFn {
-  let hasRun = false;
-  let runCount = 0;
+  let called = false;
+  let callCount = 0;
   const fn = (...args: any[]): any => {
-    hasRun = true;
-    runCount++;
+    called = true;
+    callCount++;
     return orig?.(...args);
   };
   return Object.defineProperties(fn, {
-    hasRun: {
-      get: () => hasRun,
+    called: {
+      get: () => called,
     },
-    runCount: {
-      get: () => runCount,
+    callCount: {
+      get: () => callCount,
     },
   });
 }

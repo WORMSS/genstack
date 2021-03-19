@@ -1,4 +1,4 @@
-import { DisinctCallback } from '~types';
+import { DisinctCallback } from '../types';
 
 export function* distinctByGen<T, U>(
   it: Iterator<T>,
@@ -11,7 +11,7 @@ export function* distinctByGen<T, U>(
     const convert = callbackFn(value);
     const exists = set.has(convert);
     set.add(convert);
-    if (exists) {
+    if (!exists) {
       yield value;
     }
     result = it.next();

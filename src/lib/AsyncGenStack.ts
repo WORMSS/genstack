@@ -1,22 +1,19 @@
-import { asyncDistinctByGen } from '@/intermediate/asyncDistinctByGen';
-import { asyncDistinctGen } from '@/intermediate/asyncDistinctGen';
-import { asyncFilterGen } from '@/intermediate/asyncFilterGen';
-import { asyncFlatMapGen } from '@/intermediate/asyncFlatMapGen';
-import { asyncLimitGen } from '@/intermediate/asyncLimitGen';
-import { asyncMapGen } from '@/intermediate/asyncMapGen';
-import { asyncPeekGen } from '@/intermediate/asyncPeekGen';
-import { asyncRunUntilGen } from '@/intermediate/asyncRunUntilGen';
-import { asyncRunWhileGen } from '@/intermediate/asyncRunWhileGen';
-import { asyncSkipGen } from '@/intermediate/asyncSkipGen';
-import { asyncSkipUntilGen } from '@/intermediate/asyncSkipUntilGen';
-import { asyncSkipWhileGen } from '@/intermediate/asyncSkipWhileGen';
-import { createAsyncGenerator } from '@/supplier/createAsyncGenerator';
-import { createAsyncInterlace } from '@/supplier/createAsyncInterlace';
-import { createAsyncMerge } from '@/supplier/createAsyncMerge';
-import { createRange } from '@/supplier/createRange';
-import { asyncToArray } from '@/utils/asyncToArray';
-import { getAsyncIterator } from '@/utils/getAsyncIterator';
-import { wrapToAsyncIterator } from '@/utils/wrapToAsyncIterator';
+import { asyncDistinctByGen } from './intermediate/asyncDistinctByGen';
+import { asyncDistinctGen } from './intermediate/asyncDistinctGen';
+import { asyncFilterGen } from './intermediate/asyncFilterGen';
+import { asyncFlatMapGen } from './intermediate/asyncFlatMapGen';
+import { asyncLimitGen } from './intermediate/asyncLimitGen';
+import { asyncMapGen } from './intermediate/asyncMapGen';
+import { asyncPeekGen } from './intermediate/asyncPeekGen';
+import { asyncRunUntilGen } from './intermediate/asyncRunUntilGen';
+import { asyncRunWhileGen } from './intermediate/asyncRunWhileGen';
+import { asyncSkipGen } from './intermediate/asyncSkipGen';
+import { asyncSkipUntilGen } from './intermediate/asyncSkipUntilGen';
+import { asyncSkipWhileGen } from './intermediate/asyncSkipWhileGen';
+import { createAsyncGenerator } from './supplier/createAsyncGenerator';
+import { createAsyncInterlace } from './supplier/createAsyncInterlace';
+import { createAsyncMerge } from './supplier/createAsyncMerge';
+import { createRange } from './supplier/createAsyncRange';
 import {
   AsyncDisinctCallback,
   AsyncInterlaceOptions,
@@ -24,7 +21,10 @@ import {
   AsyncStackFrom,
   PeekCallback,
   RangeOptions,
-} from '~types';
+} from './types';
+import { asyncToArray } from './utils/asyncToArray';
+import { getAsyncIterator } from './utils/getAsyncIterator';
+import { wrapToAsyncIterator } from './utils/wrapToAsyncIterator';
 
 export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
   private readonly _input: AsyncIterator<T>;
@@ -111,10 +111,6 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
 
   public toArray(): Promise<T[]> {
     return asyncToArray(this);
-  }
-
-  public async toSet(): Promise<Set<T>> {
-    return new Set(await this.toArray());
   }
 
   public get iterator(): AsyncIterator<T> {

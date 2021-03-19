@@ -1,4 +1,4 @@
-import { AsyncDisinctCallback } from '~types';
+import { AsyncDisinctCallback } from '../types';
 
 export async function* asyncDistinctByGen<T, U>(
   it: AsyncIterator<T>,
@@ -11,7 +11,7 @@ export async function* asyncDistinctByGen<T, U>(
     const convert = await callbackFn(value);
     const exists = set.has(convert);
     set.add(convert);
-    if (exists) {
+    if (!exists) {
       yield value;
     }
     result = await it.next();

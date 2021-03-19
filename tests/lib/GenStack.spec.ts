@@ -1,5 +1,6 @@
 import { assert } from 'chai';
-import { GenStack } from '../../src';
+import { AsyncGenStack } from '../../src/lib/AsyncGenStack';
+import { GenStack } from '../../src/lib/GenStack';
 import { spyFn } from './spyFn';
 
 describe(GenStack.name, () => {
@@ -25,6 +26,60 @@ describe(GenStack.name, () => {
       const gen = GenStack.range();
       const result = popValues(gen, 5);
       assert.deepEqual(result, [0, 1, 2, 3, 4]);
+    });
+
+    it('should result in incremental values by start 5', () => {
+      const gen = GenStack.range({ start: 5 });
+      const result = popValues(gen, 5);
+      assert.deepEqual(result, [5, 6, 7, 8, 9]);
+    });
+
+    it('should result in incremental values by end at 5', () => {
+      const gen = GenStack.range({ end: 5 });
+      const result = [...gen];
+      assert.deepEqual(result, [0, 1, 2, 3, 4]);
+    });
+
+    it('should result in incremental values in steps of 3', () => {
+      const gen = GenStack.range({ step: 3 });
+      const result = popValues(gen, 5);
+      assert.deepEqual(result, [0, 3, 6, 9, 12]);
+    });
+
+    it('should result in incremental values when start is less than 0', () => {
+      const gen = GenStack.range({ start: -3 });
+      const result = popValues(gen, 5);
+      assert.deepEqual(result, [-3, -2, -1, 0, 1]);
+    });
+
+    it('should result in decend values when step is less than 1', () => {
+      const gen = GenStack.range({ step: -1 });
+      const result = popValues(gen, 5);
+      assert.deepEqual(result, [0, -1, -2, -3, -4]);
+    });
+
+    it('should result in decend values when end is less than start', () => {
+      const gen = GenStack.range({ start: 3, end: -3 });
+      const result = [...gen];
+      assert.deepEqual(result, [3, 2, 1, 0, -1, -2]);
+    });
+
+    it('should result in decend values when end is less than start', () => {
+      const gen = GenStack.range({ start: 3, end: -3 });
+      const result = [...gen];
+      assert.deepEqual(result, [3, 2, 1, 0, -1, -2]);
+    });
+
+    it('should result in decend values when end is less than start and step is big', () => {
+      const gen = GenStack.range({ start: 8, end: -8, step: 5 });
+      const result = [...gen];
+      assert.deepEqual(result, [8, 3, -2, -7]);
+    });
+
+    it('should result in decend values when end is less than start and step is negative big', () => {
+      const gen = GenStack.range({ start: 8, end: -8, step: -5 });
+      const result = [...gen];
+      assert.deepEqual(result, [8, 3, -2, -7]);
     });
   });
 
@@ -61,8 +116,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([0, 1, 2, 3, 4]).filter(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [0, 2, 4]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 5);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 5);
     });
   });
 
@@ -72,8 +127,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([0, 1, 2, 3, 4]).map(spy);
       const result = gen.toArray();
       assert.deepEqual(result, ['A', 'B', 'C', 'D', 'E']);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 5);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 5);
     });
   });
 
@@ -91,8 +146,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([['a', 'b'], ['c'], ['d', 'e']]).flatMap(spy);
       const result = gen.toArray();
       assert.deepEqual(result, ['a', 'b', 'c', 'd', 'e']);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 3);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 3);
     });
   });
 
@@ -110,8 +165,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([item1, item2, item3, item4, item5, item6]).distinctBy(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [item1, item3, item4, item6]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 6);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 6);
     });
   });
 
@@ -121,8 +176,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([1, 2, 3, 4, 5, 6]).peek(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [1, 2, 3, 4, 5, 6]);
-      assert.isTrue(spy.hasRun);
-      assert.strictEqual(spy.runCount, 6);
+      assert.isTrue(spy.called);
+      assert.strictEqual(spy.callCount, 6);
     });
   });
 
@@ -140,8 +195,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([1, 2, 3, 4, 5, 6, 7, 8]).skipWhile(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [4, 5, 6, 7, 8]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 4);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 4);
     });
   });
 
@@ -151,8 +206,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([1, 2, 3, 4, 5, 6, 7, 8]).skipUntil(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [4, 5, 6, 7, 8]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 4);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 4);
     });
   });
 
@@ -162,8 +217,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([1, 2, 3, 4, 5, 6, 7, 8]).runWhile(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [1, 2, 3]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 4);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 4);
     });
   });
 
@@ -173,8 +228,8 @@ describe(GenStack.name, () => {
       const gen = GenStack.from([1, 2, 3, 4, 5, 6, 7, 8]).runUntil(spy);
       const result = gen.toArray();
       assert.deepEqual(result, [1, 2, 3]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 4);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 4);
     });
   });
 
@@ -194,15 +249,10 @@ describe(GenStack.name, () => {
     });
   });
 
-  describe(GenStack.prototype.toSet.name, () => {
-    it('should make a Set', () => {
-      const values: number[] = [];
-      const spy = spyFn((i) => values.push(i));
-      const gen = GenStack.from([1, 1, 3, 2, 3, 0]).peek(spy);
-      const result = gen.toSet();
-      assert.hasAllKeys(result, [0, 1, 2, 3]);
-      assert.isTrue(spy.hasRun);
-      assert.equal(spy.runCount, 6);
+  describe(GenStack.prototype.mapAsync.name, () => {
+    it('should change to an AsyncGenStack', () => {
+      const gen = GenStack.from([1]).mapAsync((i) => Promise.resolve(i));
+      assert.instanceOf(gen, AsyncGenStack);
     });
   });
 });

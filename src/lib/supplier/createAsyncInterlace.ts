@@ -1,5 +1,5 @@
-import { getAsyncIterator } from '@/utils/getAsyncIterator';
-import { AsyncInterlaceOptions } from '~types';
+import { AsyncInterlaceOptions } from '../types';
+import { getAsyncIterator } from '../utils/getAsyncIterator';
 
 export async function* createAsyncInterlace<T>(
   ...options: AsyncInterlaceOptions<T>

@@ -7,7 +7,7 @@ export async function* asyncDistinctGen<T>(
     const value = result.value;
     const exists = set.has(value);
     set.add(value);
-    if (exists) {
+    if (!exists) {
       yield value;
     }
     result = await it.next();

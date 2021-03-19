@@ -1,8 +1,5 @@
-import { isObject } from '@/guards/isObject';
+import { isObject } from './isObject';
 
 export function isIterable<T>(obj: unknown): obj is Iterable<T> {
-  return (
-    typeof obj === 'string' ||
-    (isObject(obj) && typeof (obj as any)[Symbol.iterator] === 'function')
-  );
+  return typeof obj === 'string' || (isObject(obj) && typeof obj[Symbol.iterator] === 'function');
 }
