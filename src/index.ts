@@ -27,8 +27,11 @@ export { skipGen } from './lib/intermediate/skipGen';
 export { skipUntilGen } from './lib/intermediate/skipUntilGen';
 export { skipWhileGen } from './lib/intermediate/skipWhileGen';
 // Terminators
-export {asyncToArray} from './lib/utils/asyncToArray';
+export { asyncToArray } from './lib/utils/asyncToArray';
 // Utils
+export { filterNull } from './lib/utils/filterNull';
+export { filterNullUndefined } from './lib/utils/filterNullUndefined';
+export { filterUndefined } from './lib/utils/filterUndefined';
 export { getAsyncIterator } from './lib/utils/getAsyncIterator';
 export { getIterator } from './lib/utils/getIterator';
 export { wrapToAsyncIterable } from './lib/utils/wrapToAsyncIterable';
