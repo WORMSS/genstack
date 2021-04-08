@@ -1,6 +1,6 @@
 export async function* asyncFilterGen<T>(
   input: Iterator<T> | AsyncIterator<T>,
-  predicate: (value: T) => boolean | PromiseLike<boolean>,
+  predicate: (value: T) => unknown | PromiseLike<unknown>,
 ): AsyncGenerator<T, any, undefined> {
   let result = await input.next();
   while (!result.done) {
