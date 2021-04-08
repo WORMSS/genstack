@@ -19,7 +19,7 @@ const gen = AsyncGenerator.range({ start: 1 })
   .map((pageNumber) => fetch(`api/results/${pageNumber}`)) // call your paginated api
   .runWhile((response) => response.ok) // quit if the response has an error code
   .map((response) => response.json()) // download the body as json
-  .runUntil((body) => body.results.length === 0) // quit is the results are zero
+  .runUntil((body) => body.results.length === 0) // quit if the results are zero
   .flatMap((body) => body.results) // turn array of results into individual results
   .filter((value) => value.id === '') // throw some results away, because why not
   .distinctBy((value) => value.date) // only take the first value per unique date
