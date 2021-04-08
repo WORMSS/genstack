@@ -6,12 +6,13 @@ export function wrapToAsyncIterator<T, TReturn = any, TNext = undefined>(
       return obj.next(...args);
     },
   };
-  const { return: return2, throw: throw2 } = obj;
-  if (return2) {
-    wrap.return = async (value: any) => return2(value);
+  if ('return' in obj) {
+    wrap.return =
+      typeof obj.return === 'function' ? async (value) => obj.return!(await value) : obj.return;
   }
-  if (throw2) {
-    wrap.throw = async (e?: any) => throw2(e);
+  if ('throw' in obj) {
+    wrap.throw =
+      typeof obj.throw === 'function' ? (err) => Promise.resolve(obj.throw!(err)) : obj.throw;
   }
   return wrap;
 }
