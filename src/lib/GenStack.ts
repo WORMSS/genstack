@@ -17,6 +17,7 @@ import { createRange } from './supplier/createAsyncRange';
 import { createGenerator } from './supplier/createGenerator';
 import { createInterlace } from './supplier/createInterlace';
 import { createMerge } from './supplier/createMerge';
+import { createWalker } from './supplier/createWalker';
 import {
   AsyncFlatMapCallback,
   DisinctCallback,
@@ -25,8 +26,13 @@ import {
   InterlaceOptions,
   MergeOptions,
   PeekCallback,
+  Predicate,
   RangeOptions,
+  WalkerChildren,
 } from './types';
+import { filterNull } from './utils/filterNull';
+import { filterNullUndefined } from './utils/filterNullUndefined';
+import { filterUndefined } from './utils/filterUndefined';
 import { getIterator } from './utils/getIterator';
 
 export class GenStack<T> implements IterableIterator<T> {
@@ -52,56 +58,17 @@ export class GenStack<T> implements IterableIterator<T> {
     return new GenStack(createInterlace(...options));
   }
 
+  public static walker<T>(node: T, children: WalkerChildren<T>): GenStack<T> {
+    return new GenStack(createWalker(node, children));
+  }
+
   constructor(input: Iterator<T>) {
     this._input = input;
   }
 
+  // Limits
   public limit(num: number): GenStack<T> {
     return new GenStack(limitGen(this.iterator, num));
-  }
-
-  public filter(predicate: (value: T) => boolean): GenStack<T> {
-    return new GenStack(filterGen(this.iterator, predicate));
-  }
-
-  public map<U>(callbackfn: (value: T) => U): GenStack<U> {
-    return new GenStack(mapGen(this.iterator, callbackfn));
-  }
-
-  public mapAsync<U>(callbackFn: (value: T) => U | PromiseLike<U>): AsyncGenStack<U> {
-    return new AsyncGenStack(asyncMapGen(this.iterator, callbackFn));
-  }
-
-  public distinct(): GenStack<T> {
-    return new GenStack(distinctGen(this.iterator));
-  }
-
-  public distinctBy<U>(callbackFn: DisinctCallback<T, U>): GenStack<T> {
-    return new GenStack(distinctByGen(this.iterator, callbackFn));
-  }
-
-  public flatMap<U>(callbackFn: FlatMapCallback<T, U>): GenStack<U> {
-    return new GenStack(flatMapGen(this.iterator, callbackFn));
-  }
-
-  public flatMapAsync<U>(callbackFn: AsyncFlatMapCallback<T, U>): AsyncGenStack<U> {
-    return new AsyncGenStack(asyncFlatMapGen(this.iterator, callbackFn));
-  }
-
-  public skip(skip: number): GenStack<T> {
-    return new GenStack(skipGen(this.iterator, skip));
-  }
-
-  public peek(callbackFn: PeekCallback<T>): GenStack<T> {
-    return new GenStack(peekGen(this.iterator, callbackFn));
-  }
-
-  public skipWhile(callbackFn: (value: T) => boolean): GenStack<T> {
-    return new GenStack(skipWhileGen(this.iterator, callbackFn));
-  }
-
-  public skipUntil(callbackFn: (value: T) => boolean): GenStack<T> {
-    return new GenStack(skipUntilGen(this.iterator, callbackFn));
   }
 
   public runWhile(callbackFn: (value: T) => boolean): GenStack<T> {
@@ -112,6 +79,69 @@ export class GenStack<T> implements IterableIterator<T> {
     return new GenStack(runUntilGen(this.iterator, callbackFn));
   }
 
+  // Filtering
+  public filter<S extends T>(predicate: Predicate<T, S>): GenStack<S>; // The good filter
+  public filter(predicate: (n: T) => unknown): GenStack<T>; // The fall back filter
+  // REAL METHOD
+  public filter(predicate: (n: T) => unknown): GenStack<T> {
+    return new GenStack(filterGen(this.iterator, predicate));
+  }
+
+  public filterNull(): GenStack<Exclude<T, null>> {
+    return this.filter(filterNull);
+  }
+
+  public filterUndefined(): GenStack<Exclude<T, undefined>> {
+    return this.filter(filterUndefined);
+  }
+
+  public filterNullUndefined(): GenStack<Exclude<T, null | undefined>> {
+    return this.filter(filterNullUndefined);
+  }
+
+  public skip(skip: number): GenStack<T> {
+    return new GenStack(skipGen(this.iterator, skip));
+  }
+
+  public skipWhile(callbackFn: (value: T) => boolean): GenStack<T> {
+    return new GenStack(skipWhileGen(this.iterator, callbackFn));
+  }
+
+  public skipUntil(callbackFn: (value: T) => boolean): GenStack<T> {
+    return new GenStack(skipUntilGen(this.iterator, callbackFn));
+  }
+
+  public distinct(): GenStack<T> {
+    return new GenStack(distinctGen(this.iterator));
+  }
+
+  public distinctBy<U>(callbackFn: DisinctCallback<T, U>): GenStack<T> {
+    return new GenStack(distinctByGen(this.iterator, callbackFn));
+  }
+
+  // Mapping
+  public map<U>(callbackfn: (value: T) => U): GenStack<U> {
+    return new GenStack(mapGen(this.iterator, callbackfn));
+  }
+
+  public mapAsync<U>(callbackFn: (value: T) => U | PromiseLike<U>): AsyncGenStack<U> {
+    return new AsyncGenStack(asyncMapGen(this.iterator, callbackFn));
+  }
+
+  // Expand
+  public flatMap<U>(callbackFn: FlatMapCallback<T, U>): GenStack<U> {
+    return new GenStack(flatMapGen(this.iterator, callbackFn));
+  }
+
+  public flatMapAsync<U>(callbackFn: AsyncFlatMapCallback<T, U>): AsyncGenStack<U> {
+    return new AsyncGenStack(asyncFlatMapGen(this.iterator, callbackFn));
+  }
+
+  public walker(children: WalkerChildren<T>): GenStack<T> {
+    return this.flatMap((node) => GenStack.walker(node, children));
+  }
+
+  // Merging
   public merge(...options: MergeOptions<T>): GenStack<T> {
     return GenStack.merge(this, ...options);
   }
@@ -120,10 +150,17 @@ export class GenStack<T> implements IterableIterator<T> {
     return GenStack.interlace(this, ...options);
   }
 
+  // Utils
+  public peek(callbackFn: PeekCallback<T>): GenStack<T> {
+    return new GenStack(peekGen(this.iterator, callbackFn));
+  }
+
+  // Terminators
   public toArray(): T[] {
     return [...this];
   }
 
+  // Incase someone doesn't understand how this works
   public get iterator(): Iterator<T> {
     return this._input;
   }
@@ -136,5 +173,10 @@ export class GenStack<T> implements IterableIterator<T> {
   // Needed for IterableIterator interface
   public next(...args: []): IteratorResult<T> {
     return this.iterator.next(...args);
+  }
+
+  // Nice things to have
+  get [Symbol.toStringTag]() {
+    return 'GenStack';
   }
 }

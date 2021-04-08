@@ -1,7 +1,8 @@
 import { assert } from 'chai';
 import { AsyncGenStack } from '../../src/lib/AsyncGenStack';
 import { GenStack } from '../../src/lib/GenStack';
-import { spyFn } from './spyFn';
+import { shouldThrow } from '../shouldThrow';
+import { spyFn } from '../spyFn';
 
 describe(GenStack.name, () => {
   describe(`${GenStack.name}.${GenStack.from.name}`, () => {
@@ -13,6 +14,9 @@ describe(GenStack.name, () => {
       const gen = GenStack.from('abcd');
       const result = gen.toArray();
       assert.deepEqual(result, [...'abcd']);
+    });
+    it('should throw when given an invalid input', async () => {
+      await shouldThrow(() => GenStack.from(123 as any));
     });
   });
 

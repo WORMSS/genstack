@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { AsyncGenStack } from '../../src/lib/AsyncGenStack';
-import { spyFn } from './spyFn';
+import { spyFn } from '../spyFn';
 
 describe(AsyncGenStack.name, () => {
   describe(`${AsyncGenStack.name}.${AsyncGenStack.from.name}`, () => {
@@ -112,6 +112,14 @@ describe(AsyncGenStack.name, () => {
   describe(AsyncGenStack.prototype.filter.name, () => {
     it('should filter unwanted items', async () => {
       const spy = spyFn((i) => i % 2 === 0);
+      const gen = AsyncGenStack.from([0, 1, 2, 3, 4]).filter(spy);
+      const result = await gen.toArray();
+      assert.deepEqual(result, [0, 2, 4]);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 5);
+    });
+    it('should filter unwanted items async', async () => {
+      const spy = spyFn((i) => Promise.resolve(i % 2 === 0));
       const gen = AsyncGenStack.from([0, 1, 2, 3, 4]).filter(spy);
       const result = await gen.toArray();
       assert.deepEqual(result, [0, 2, 4]);
