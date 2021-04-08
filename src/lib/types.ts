@@ -26,3 +26,7 @@ export type FlatMapCallback<T, U> = (value: T) => Iterator<U> | Iterable<U>;
 export type DisinctCallback<T, U> = (value: T) => U;
 export type AsyncDisinctCallback<T, U> = (value: T) => U | PromiseLike<U>;
 export type PeekCallback<T> = (value: T) => void;
+export type WalkerChildren<T> = (node: T) => Iterable<T> | null | undefined;
+export type AsyncWalkerChildren<T> = (node: T) => AsyncIterable<T> | Iterable<T> | null | undefined;
+export type Predicate<T, S extends T> = (node: T) => node is S;
+export type AsyncPredicate<T> = (node: T) => unknown | PromiseLike<unknown>;
