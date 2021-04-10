@@ -38,7 +38,8 @@ for await (const message of gen) {
   - [GenStack.range(options)](#genstackrangeoptions)
   - [GenStack.merge(...inputs)](#genstackmergeinputs)
   - [GenStack.interlace(...inputs)](#genstackinterlaceinputs)
-  - [GenStack.walker(node, children)](#genstackwalkernodechildren)
+  - [GenStack.walker(node, children)](#genstackwalkernode-children)
+  - [GenStack.reg(reg, content)](#genstackregreg-content)
 - Limit (chainable)
   - [.limit(num)](#limitnum)
   - [.runWhile(cb)](#runwhilecb)
@@ -146,6 +147,22 @@ Interlace multiple iterators or iterables together. Taking 1 from each at a time
 ```ts
 // 0...many number of iterable_or_iterators
 GenStack.interlace(iterable1, iterable2, ...iterables);
+```
+
+### GenStack.walker(node, children)
+
+**_// TODO add more info_**
+
+```ts
+GenStack.walker({ children: [] }, (n) => n.children);
+```
+
+### GenStack.reg(reg, content)
+
+**_// TODO add more info_**
+
+```ts
+GenStack.reg('a.', 'aaabacad');
 ```
 
 ### .limit(num)
