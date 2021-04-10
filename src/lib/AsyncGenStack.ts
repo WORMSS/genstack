@@ -15,6 +15,7 @@ import { createAsyncInterlace } from './supplier/createAsyncInterlace';
 import { createAsyncMerge } from './supplier/createAsyncMerge';
 import { createAsyncWalker } from './supplier/createAsyncWalker';
 import { createRange } from './supplier/createRange';
+import { createReg } from './supplier/createReg';
 import {
   AsyncDisinctCallback,
   AsyncFlatMapCallback,
@@ -59,6 +60,10 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
 
   public static walker<T>(node: T, children: AsyncWalkerChildren<T>): AsyncGenStack<T> {
     return new AsyncGenStack(createAsyncWalker(node, children));
+  }
+
+  public static reg(reg: string | RegExp, content: string): AsyncGenStack<RegExpMatchArray> {
+    return new AsyncGenStack(wrapToAsyncIterator(createReg(reg, content)));
   }
 
   constructor(input: AsyncIterator<T>) {

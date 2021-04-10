@@ -17,6 +17,7 @@ import { createGenerator } from './supplier/createGenerator';
 import { createInterlace } from './supplier/createInterlace';
 import { createMerge } from './supplier/createMerge';
 import { createRange } from './supplier/createRange';
+import { createReg } from './supplier/createReg';
 import { createWalker } from './supplier/createWalker';
 import {
   AsyncFlatMapCallback,
@@ -60,6 +61,10 @@ export class GenStack<T> implements IterableIterator<T> {
 
   public static walker<T>(node: T, children: WalkerChildren<T>): GenStack<T> {
     return new GenStack(createWalker(node, children));
+  }
+
+  public static reg(reg: string | RegExp, content: string): GenStack<RegExpMatchArray> {
+    return new GenStack(createReg(reg, content));
   }
 
   constructor(input: Iterator<T>) {
