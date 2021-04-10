@@ -13,10 +13,10 @@ import { runWhileGen } from './intermediate/runWhileGen';
 import { skipGen } from './intermediate/skipGen';
 import { skipUntilGen } from './intermediate/skipUntilGen';
 import { skipWhileGen } from './intermediate/skipWhileGen';
-import { createRange } from './supplier/createAsyncRange';
 import { createGenerator } from './supplier/createGenerator';
 import { createInterlace } from './supplier/createInterlace';
 import { createMerge } from './supplier/createMerge';
+import { createRange } from './supplier/createRange';
 import { createWalker } from './supplier/createWalker';
 import {
   AsyncFlatMapCallback,

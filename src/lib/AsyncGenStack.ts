@@ -13,8 +13,8 @@ import { asyncSkipWhileGen } from './intermediate/asyncSkipWhileGen';
 import { createAsyncGenerator } from './supplier/createAsyncGenerator';
 import { createAsyncInterlace } from './supplier/createAsyncInterlace';
 import { createAsyncMerge } from './supplier/createAsyncMerge';
-import { createRange } from './supplier/createAsyncRange';
 import { createAsyncWalker } from './supplier/createAsyncWalker';
+import { createRange } from './supplier/createRange';
 import {
   AsyncDisinctCallback,
   AsyncFlatMapCallback,
