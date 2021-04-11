@@ -35,9 +35,9 @@ export function createRange(options?: RangeOptions): Generator<number, any, unde
 
   step = Math.abs(step);
   if (start < end) {
-    return createRangeFiniteDescend(start, end, step);
+    return createRangeFiniteAscend(start, end, step);
   }
-  return createRangeFiniteAscend(start, end, step);
+  return createRangeFiniteDescend(start, end, step);
 }
 
 function* createRangeInfinity(start: number, step: number) {
