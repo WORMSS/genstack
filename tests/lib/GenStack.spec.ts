@@ -20,6 +20,43 @@ describe(GenStack.name, () => {
     });
   });
 
+  describe(`${GenStack.name}.${GenStack.generate.name}`, () => {
+    it('should create GenStack', () => {
+      const gen = GenStack.generate(() => null);
+      assert.instanceOf(gen, GenStack);
+    });
+
+    it('should call generate function for each value', () => {
+      const spy = spyFn(incrementFn());
+      const gen = GenStack.generate(spy);
+      const result = popValues(gen, 5);
+
+      assert.deepEqual(result, [0, 1, 2, 3, 4]);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 5);
+    });
+
+    it('should call generate function even with null', () => {
+      const spy = spyFn(() => null);
+      const gen = GenStack.generate(spy);
+      const result = popValues(gen, 3);
+
+      assert.deepEqual(result, [null, null, null]);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 3);
+    });
+
+    it('should call generate function even with undefined', () => {
+      const spy = spyFn(() => void 0);
+      const gen = GenStack.generate(spy);
+      const result = popValues(gen, 3);
+
+      assert.deepEqual(result, [undefined, undefined, undefined]);
+      assert.isTrue(spy.called);
+      assert.equal(spy.callCount, 3);
+    });
+  });
+
   describe(`${GenStack.name}.${GenStack.range.name}`, () => {
     it('should create GenStack', () => {
       const gen = GenStack.range();
@@ -87,6 +124,19 @@ describe(GenStack.name, () => {
     });
   });
 
+  describe(`${GenStack.name}.${GenStack.merge.name}`, () => {
+    it('should create GenStack', () => {
+      const gen = GenStack.merge();
+      assert.instanceOf(gen, GenStack);
+    });
+
+    it('should interlace values', () => {
+      const gen = GenStack.merge([], ['a', 'a', 'a'], [], ['b'], ['c', 'c']);
+      const values = gen.toArray();
+      assert.deepEqual(values, ['a', 'a', 'a', 'b', 'c', 'c']);
+    });
+  });
+
   describe(`${GenStack.name}.${GenStack.interlace.name}`, () => {
     it('should create GenStack', () => {
       const gen = GenStack.interlace();
@@ -97,6 +147,18 @@ describe(GenStack.name, () => {
       const gen = GenStack.interlace([], ['a', 'a', 'a'], [], ['b'], ['c', 'c']);
       const values = gen.toArray();
       assert.deepEqual(values, ['a', 'b', 'c', 'a', 'c', 'a']);
+    });
+  });
+
+  describe(`${GenStack.name}.${GenStack.walker.name}`, () => {
+    it.skip('should ', () => {
+      throw new Error();
+    });
+  });
+
+  describe(`${GenStack.name}.${GenStack.reg.name}`, () => {
+    it.skip('should ', () => {
+      throw new Error();
     });
   });
 
@@ -266,6 +328,11 @@ function* incrementGen(): Generator<number, any, unknown> {
   while (true) {
     yield a++;
   }
+}
+
+function incrementFn(): () => number {
+  let a = 0;
+  return () => a++;
 }
 
 function popValues<T>(gen: GenStack<T>, size: number): T[] {
