@@ -29,12 +29,14 @@ import {
   PeekCallback,
   Predicate,
   RangeOptions,
+  ToMapOptions,
   WalkerChildren,
 } from './types';
 import { filterNull } from './utils/filterNull';
 import { filterNullUndefined } from './utils/filterNullUndefined';
 import { filterUndefined } from './utils/filterUndefined';
 import { getIterator } from './utils/getIterator';
+import { toMap } from './utils/toMap';
 
 export class GenStack<T> implements IterableIterator<T> {
   private readonly _input: Iterator<T>;
@@ -163,6 +165,15 @@ export class GenStack<T> implements IterableIterator<T> {
   // Terminators
   public toArray(): T[] {
     return [...this];
+  }
+
+  public toMap<K, V>(options?: ToMapOptions<T, K, V>): Map<K, V>;
+  public toMap<K, V>(key?: (i: T) => K, value?: (i: T) => V): Map<K, V>;
+  public toMap<K, V>(
+    keyOrOptions?: ToMapOptions<T, K, V> | ((i: T) => K),
+    value?: (i: T) => V,
+  ): Map<K, V> {
+    return toMap(this.iterator, keyOrOptions, value);
   }
 
   // Incase someone doesn't understand how this works

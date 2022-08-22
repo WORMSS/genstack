@@ -23,12 +23,14 @@ import {
   AsyncMergeOptions,
   AsyncPredicate,
   AsyncStackFrom,
+  AsyncToMapOptions,
   AsyncWalkerChildren,
   PeekCallback,
   Predicate,
   RangeOptions,
 } from './types';
 import { asyncToArray } from './utils/asyncToArray';
+import { asyncToMap } from './utils/asyncToMap';
 import { filterNull } from './utils/filterNull';
 import { filterNullUndefined } from './utils/filterNullUndefined';
 import { filterUndefined } from './utils/filterUndefined';
@@ -164,6 +166,18 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
   // Terminators
   public toArray(): Promise<T[]> {
     return asyncToArray(this);
+  }
+
+  public toMap<K, V>(options?: AsyncToMapOptions<T, K, V>): Promise<Map<K, V>>;
+  public toMap<K, V>(
+    key?: (i: T) => K | PromiseLike<K>,
+    value?: (i: T) => V | PromiseLike<V>,
+  ): Promise<Map<K, V>>;
+  public toMap<K, V>(
+    keyOrOptions?: AsyncToMapOptions<T, K, V> | ((i: T) => K | PromiseLike<K>),
+    value?: (i: T) => V | PromiseLike<V>,
+  ): Promise<Map<K, V>> {
+    return asyncToMap(this.iterator, keyOrOptions, value);
   }
 
   public get iterator(): AsyncIterator<T> {

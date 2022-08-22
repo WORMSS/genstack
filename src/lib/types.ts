@@ -30,3 +30,11 @@ export type WalkerChildren<T> = (node: T) => Iterable<T> | null | undefined;
 export type AsyncWalkerChildren<T> = (node: T) => AsyncIterable<T> | Iterable<T> | null | undefined;
 export type Predicate<T, S extends T> = (node: T) => node is S;
 export type AsyncPredicate<T> = (node: T) => unknown | PromiseLike<unknown>;
+export interface ToMapOptions<T, K, V> {
+  key?: (i: T) => K;
+  value?: (i: T) => V;
+}
+export interface AsyncToMapOptions<T, K, V> {
+  key?: (i: T) => K | PromiseLike<K>;
+  value?: (i: T) => V | PromiseLike<V>;
+}
