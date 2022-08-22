@@ -19,5 +19,5 @@ export function spyFn(orig?: (...args: any[]) => any): SpyFn {
     callCount: {
       get: () => callCount,
     },
-  });
+  }) as SpyFn;
 }
