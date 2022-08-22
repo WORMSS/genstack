@@ -15,7 +15,7 @@ npm i @wormss/genstack
 ## Example
 
 ```js
-const gen = AsyncGenerator.range({ start: 1 })
+const gen = AsyncGenStack.range({ start: 1 })
   .map((pageNumber) => fetch(`api/results/${pageNumber}`)) // call your paginated api
   .runWhile((response) => response.ok) // quit if the response has an error code
   .map((response) => response.json()) // download the body as json
@@ -89,7 +89,7 @@ const gen = AsyncGenStack.from(myAsyncGenerator()); // Async GenStack from async
 const gen = AsyncGenStack.from(GenStack.from([1, 2, 3])); // Because why not.
 ```
 
-### GenStack.generator(func)
+#### GenStack.generator(func)
 
 Infinitly call a supplied function for values.
 
@@ -264,6 +264,8 @@ GenStack.from(myList).map(cb);\
 GenStack.from(myList).mapAsync(cb);
 ```
 
+#### .flatmap(cb)
+
 ```ts
 // flatterns a list of lists into a single list. By list, I mean anythign that is iterable or an iterator. Be mindful of strings
 GenStack.from(myList).flatMap(cb);
@@ -277,14 +279,23 @@ GenStack.from(myList).flatMapAsync(cb);
 
 ### Merging
 
+#### .merge(...inputs)
+
 ```ts
 // See GenStack.merge, only difference is they are concatinated after the 'this' has ran out of values
 GenStack.from(myList).merge(iterable2, ...iterables);
+```
+
+#### .interlace(...inputs)
+
+```ts
 // See GenStack.interlace, only difference is 'this' is the first iterator to interlace
 GenStack.from(myList).interlace(iterable2, ...iterables);
 ```
 
-### Utility
+### Utilities
+
+#### .peek(cb)
 
 ```ts
 // cb will be called with the value, but the value itself will continue down the stack.
@@ -292,6 +303,8 @@ GenStack.from(myList).peek(cb);
 ```
 
 ### Terminators (insert Skynet joke)
+
+#### .toArray()
 
 I've listed both here.... Just because, you know.. reasons..
 
