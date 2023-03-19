@@ -3,14 +3,15 @@
   "version": "1.2.3",
   "description": "",
   "type": "module",
-  "main": "./dist/cjs",
-  "module": "./dist/esm",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "scripts": {
     "build": "tsc && tsc -p tsconfig-cjs.json",
     "build:watch": "tsc -w",
     "build:watch-cjs": "tsc -w -p tsconfig-cjs.json",
     "prepublishOnly": "npm run build",
-    "test": "mocha --experimental-specifier-resolution=node"
+    "test": "mocha --experimental-specifier-resolution=node",
+    "build:tsup": "tsup"
   },
   "devDependencies": {
     "@types/chai": "latest",
@@ -19,6 +20,7 @@
     "mocha": "latest",
     "prettier": "latest",
     "ts-node": "latest",
+    "tsup": "latest",
     "typescript": "latest"
   },
   "files": [
