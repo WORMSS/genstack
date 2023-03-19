@@ -86,10 +86,8 @@ export class GenStack<T> implements IterableIterator<T> {
     return new GenStack(runUntilGen(this.iterator, callbackFn));
   }
 
-  // Filtering
   public filter<S extends T>(predicate: Predicate<T, S>): GenStack<S>; // The good filter
   public filter(predicate: (n: T) => unknown): GenStack<T>; // The fall back filter
-  // REAL METHOD
   public filter(predicate: (n: T) => unknown): GenStack<T> {
     return new GenStack(filterGen(this.iterator, predicate));
   }

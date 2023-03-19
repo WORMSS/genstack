@@ -22,5 +22,3 @@ export function toMap<T, K = T, V = T>(
   }
   return map;
 }
-
-toMap([''][Symbol.iterator](), Math.random, Math.random);
