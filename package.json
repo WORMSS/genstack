@@ -7,22 +7,14 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig-cjs.json",
-    "build:watch": "tsc -w",
-    "build:watch-cjs": "tsc -w -p tsconfig-cjs.json",
-    "prepublishOnly": "npm run build:tsup",
-    "test": "mocha --experimental-specifier-resolution=node",
+    "test": "vitest --reporter verbose",
     "build:tsup": "tsup"
   },
   "devDependencies": {
-    "@types/chai": "latest",
-    "@types/mocha": "latest",
-    "chai": "latest",
-    "mocha": "latest",
-    "prettier": "latest",
-    "ts-node": "latest",
-    "tsup": "latest",
-    "typescript": "latest"
+    "prettier": "^3.3.3",
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.4"
   },
   "files": [
     "dist/**",
