@@ -11,10 +11,10 @@
     "build:tsup": "tsup"
   },
   "devDependencies": {
-    "prettier": "^3.3.3",
-    "tsup": "^8.2.3",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.7"
   },
   "files": [
     "dist/**",
