@@ -1,4 +1,4 @@
-import { AsyncDisinctCallback } from '../types';
+import type { AsyncDisinctCallback } from '../types.ts';
 
 export async function* asyncDistinctByGen<T, U>(
   it: AsyncIterator<T>,

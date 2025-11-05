@@ -1,4 +1,4 @@
-import { AsyncGenStack } from '../../src/lib/AsyncGenStack';
+import { AsyncGenStack } from '../../src/lib/AsyncGenStack.ts';
 import { expect, describe, it, vi } from 'vitest';
 
 describe(AsyncGenStack.name, () => {

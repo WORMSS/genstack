@@ -1,5 +1,5 @@
-import { AsyncGenStack } from '../../src/lib/AsyncGenStack';
-import { GenStack } from '../../src/lib/GenStack';
+import { AsyncGenStack } from '../../src/lib/AsyncGenStack.ts';
+import { GenStack } from '../../src/lib/GenStack.ts';
 import { expect, describe, it, vi } from 'vitest';
 
 describe(GenStack.name, () => {

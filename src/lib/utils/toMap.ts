@@ -1,4 +1,4 @@
-import { ToMapOptions } from '../types';
+import type { ToMapOptions } from '../types.ts';
 
 export function toMap<T, K = T, V = T>(
   it: Iterator<T>,

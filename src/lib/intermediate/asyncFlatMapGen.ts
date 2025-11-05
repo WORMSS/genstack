@@ -1,6 +1,6 @@
-import { AsyncFlatMapCallback } from '../types';
-import { getAsyncIterator } from '../utils/getAsyncIterator';
-import { wrapToAsyncIterable } from '../utils/wrapToAsyncIterable';
+import type { AsyncFlatMapCallback } from '../types.ts';
+import { getAsyncIterator } from '../utils/getAsyncIterator.ts';
+import { wrapToAsyncIterable } from '../utils/wrapToAsyncIterable.ts';
 
 export async function* asyncFlatMapGen<T, U>(
   input: Iterator<T> | AsyncIterator<T>,

@@ -1,7 +1,7 @@
-import { assertIterator } from '../guards/assertIterator';
-import { isAsyncIterable } from '../guards/isAsyncIterable';
-import { isIterable } from '../guards/isIterable';
-import { wrapToAsyncIterator } from './wrapToAsyncIterator';
+import { assertIterator } from '../guards/assertIterator.ts';
+import { isAsyncIterable } from '../guards/isAsyncIterable.ts';
+import { isIterable } from '../guards/isIterable.ts';
+import { wrapToAsyncIterator } from './wrapToAsyncIterator.ts';
 
 export function getAsyncIterator<T>(
   obj: Iterator<T> | Iterable<T> | AsyncIterator<T> | AsyncIterable<T>,

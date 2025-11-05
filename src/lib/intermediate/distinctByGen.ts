@@ -1,4 +1,4 @@
-import { DisinctCallback } from '../types';
+import type { DisinctCallback } from '../types.ts';
 
 export function* distinctByGen<T, U>(
   it: Iterator<T>,

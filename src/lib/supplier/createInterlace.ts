@@ -1,5 +1,5 @@
-import { InterlaceOptions } from '../types';
-import { getIterator } from '../utils/getIterator';
+import type { InterlaceOptions } from '../types.ts';
+import { getIterator } from '../utils/getIterator.ts';
 
 export function* createInterlace<T>(...options: InterlaceOptions<T>): Generator<T, any, undefined> {
   const iterators = options.map((i) => getIterator(i));

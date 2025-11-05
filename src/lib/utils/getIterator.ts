@@ -1,5 +1,5 @@
-import { assertIterator } from '../guards/assertIterator';
-import { isIterable } from '../guards/isIterable';
+import { assertIterator } from '../guards/assertIterator.ts';
+import { isIterable } from '../guards/isIterable.ts';
 
 export function getIterator<T>(obj: Iterator<T> | Iterable<T>): Iterator<T> {
   let it: Iterator<T>;

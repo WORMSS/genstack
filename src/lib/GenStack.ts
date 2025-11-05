@@ -1,25 +1,25 @@
-import { AsyncGenStack } from './AsyncGenStack';
-import { asyncFlatMapGen } from './intermediate/asyncFlatMapGen';
-import { asyncMapGen } from './intermediate/asyncMapGen';
-import { distinctByGen } from './intermediate/distinctByGen';
-import { distinctGen } from './intermediate/distinctGen';
-import { filterGen } from './intermediate/filterGen';
-import { flatMapGen } from './intermediate/flatMapGen';
-import { limitGen } from './intermediate/limitGen';
-import { mapGen } from './intermediate/mapGen';
-import { peekGen } from './intermediate/peekGen';
-import { runUntilGen } from './intermediate/runUntilGen';
-import { runWhileGen } from './intermediate/runWhileGen';
-import { skipGen } from './intermediate/skipGen';
-import { skipUntilGen } from './intermediate/skipUntilGen';
-import { skipWhileGen } from './intermediate/skipWhileGen';
-import { createGenerator } from './supplier/createGenerator';
-import { createInterlace } from './supplier/createInterlace';
-import { createMerge } from './supplier/createMerge';
-import { createRange } from './supplier/createRange';
-import { createReg } from './supplier/createReg';
-import { createWalker } from './supplier/createWalker';
-import {
+import { AsyncGenStack } from './AsyncGenStack.ts';
+import { asyncFlatMapGen } from './intermediate/asyncFlatMapGen.ts';
+import { asyncMapGen } from './intermediate/asyncMapGen.ts';
+import { distinctByGen } from './intermediate/distinctByGen.ts';
+import { distinctGen } from './intermediate/distinctGen.ts';
+import { filterGen } from './intermediate/filterGen.ts';
+import { flatMapGen } from './intermediate/flatMapGen.ts';
+import { limitGen } from './intermediate/limitGen.ts';
+import { mapGen } from './intermediate/mapGen.ts';
+import { peekGen } from './intermediate/peekGen.ts';
+import { runUntilGen } from './intermediate/runUntilGen.ts';
+import { runWhileGen } from './intermediate/runWhileGen.ts';
+import { skipGen } from './intermediate/skipGen.ts';
+import { skipUntilGen } from './intermediate/skipUntilGen.ts';
+import { skipWhileGen } from './intermediate/skipWhileGen.ts';
+import { createGenerator } from './supplier/createGenerator.ts';
+import { createInterlace } from './supplier/createInterlace.ts';
+import { createMerge } from './supplier/createMerge.ts';
+import { createRange } from './supplier/createRange.ts';
+import { createReg } from './supplier/createReg.ts';
+import { createWalker } from './supplier/createWalker.ts';
+import type {
   AsyncFlatMapCallback,
   DisinctCallback,
   FlatMapCallback,
@@ -31,12 +31,14 @@ import {
   RangeOptions,
   ToMapOptions,
   WalkerChildren,
-} from './types';
-import { filterNull } from './utils/filterNull';
-import { filterNullUndefined } from './utils/filterNullUndefined';
-import { filterUndefined } from './utils/filterUndefined';
-import { getIterator } from './utils/getIterator';
-import { toMap } from './utils/toMap';
+} from './types.ts';
+import { filterNull } from './utils/filterNull.ts';
+import { filterNullUndefined } from './utils/filterNullUndefined.ts';
+import { filterUndefined } from './utils/filterUndefined.ts';
+import { getIterator } from './utils/getIterator.ts';
+import { reduce } from './utils/reduce.ts';
+import { some } from './utils/some.ts';
+import { toMap } from './utils/toMap.ts';
 
 export class GenStack<T> implements IterableIterator<T> {
   private readonly _input: Iterator<T>;
@@ -172,6 +174,16 @@ export class GenStack<T> implements IterableIterator<T> {
     value?: (i: T) => V,
   ): Map<K, V> {
     return toMap(this.iterator, keyOrOptions, value);
+  }
+
+  public reduce(cb: (previous: T, current: T) => T): T;
+  public reduce<U>(cb: (previous: U, current: T) => U, initialValue: U): U;
+  public reduce<U = T>(cb: (previous: U, current: T) => U, initialValue?: U): U {
+    return reduce(this.iterator, cb, initialValue);
+  }
+
+  public some(cb: (item: T, index: number) => unknown): boolean {
+    return some(this.iterator, cb);
   }
 
   // Incase someone doesn't understand how this works

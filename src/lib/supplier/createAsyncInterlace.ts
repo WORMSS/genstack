@@ -1,5 +1,5 @@
-import { AsyncInterlaceOptions } from '../types';
-import { getAsyncIterator } from '../utils/getAsyncIterator';
+import type { AsyncInterlaceOptions } from '../types.ts';
+import { getAsyncIterator } from '../utils/getAsyncIterator.ts';
 
 export async function* createAsyncInterlace<T>(
   ...options: AsyncInterlaceOptions<T>

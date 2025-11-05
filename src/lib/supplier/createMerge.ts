@@ -1,5 +1,5 @@
-import { MergeOptions } from '../types';
-import { getIterator } from '../utils/getIterator';
+import type { MergeOptions } from '../types.ts';
+import { getIterator } from '../utils/getIterator.ts';
 
 export function* createMerge<T>(...options: MergeOptions<T>): Generator<T, any, undefined> {
   for (const opt of options) {

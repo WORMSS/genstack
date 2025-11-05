@@ -1,22 +1,22 @@
-import { asyncDistinctByGen } from './intermediate/asyncDistinctByGen';
-import { asyncDistinctGen } from './intermediate/asyncDistinctGen';
-import { asyncFilterGen } from './intermediate/asyncFilterGen';
-import { asyncFlatMapGen } from './intermediate/asyncFlatMapGen';
-import { asyncLimitGen } from './intermediate/asyncLimitGen';
-import { asyncMapGen } from './intermediate/asyncMapGen';
-import { asyncPeekGen } from './intermediate/asyncPeekGen';
-import { asyncRunUntilGen } from './intermediate/asyncRunUntilGen';
-import { asyncRunWhileGen } from './intermediate/asyncRunWhileGen';
-import { asyncSkipGen } from './intermediate/asyncSkipGen';
-import { asyncSkipUntilGen } from './intermediate/asyncSkipUntilGen';
-import { asyncSkipWhileGen } from './intermediate/asyncSkipWhileGen';
-import { createAsyncGenerator } from './supplier/createAsyncGenerator';
-import { createAsyncInterlace } from './supplier/createAsyncInterlace';
-import { createAsyncMerge } from './supplier/createAsyncMerge';
-import { createAsyncWalker } from './supplier/createAsyncWalker';
-import { createRange } from './supplier/createRange';
-import { createReg } from './supplier/createReg';
-import {
+import { asyncDistinctByGen } from './intermediate/asyncDistinctByGen.ts';
+import { asyncDistinctGen } from './intermediate/asyncDistinctGen.ts';
+import { asyncFilterGen } from './intermediate/asyncFilterGen.ts';
+import { asyncFlatMapGen } from './intermediate/asyncFlatMapGen.ts';
+import { asyncLimitGen } from './intermediate/asyncLimitGen.ts';
+import { asyncMapGen } from './intermediate/asyncMapGen.ts';
+import { asyncPeekGen } from './intermediate/asyncPeekGen.ts';
+import { asyncRunUntilGen } from './intermediate/asyncRunUntilGen.ts';
+import { asyncRunWhileGen } from './intermediate/asyncRunWhileGen.ts';
+import { asyncSkipGen } from './intermediate/asyncSkipGen.ts';
+import { asyncSkipUntilGen } from './intermediate/asyncSkipUntilGen.ts';
+import { asyncSkipWhileGen } from './intermediate/asyncSkipWhileGen.ts';
+import { createAsyncGenerator } from './supplier/createAsyncGenerator.ts';
+import { createAsyncInterlace } from './supplier/createAsyncInterlace.ts';
+import { createAsyncMerge } from './supplier/createAsyncMerge.ts';
+import { createAsyncWalker } from './supplier/createAsyncWalker.ts';
+import { createRange } from './supplier/createRange.ts';
+import { createReg } from './supplier/createReg.ts';
+import type {
   AsyncDisinctCallback,
   AsyncFlatMapCallback,
   AsyncInterlaceOptions,
@@ -28,14 +28,16 @@ import {
   PeekCallback,
   Predicate,
   RangeOptions,
-} from './types';
-import { asyncToArray } from './utils/asyncToArray';
-import { asyncToMap } from './utils/asyncToMap';
-import { filterNull } from './utils/filterNull';
-import { filterNullUndefined } from './utils/filterNullUndefined';
-import { filterUndefined } from './utils/filterUndefined';
-import { getAsyncIterator } from './utils/getAsyncIterator';
-import { wrapToAsyncIterator } from './utils/wrapToAsyncIterator';
+} from './types.ts';
+import { asyncReduce } from './utils/asyncReduce.ts';
+import { asyncSome } from './utils/asyncSome.ts';
+import { asyncToArray } from './utils/asyncToArray.ts';
+import { asyncToMap } from './utils/asyncToMap.ts';
+import { filterNull } from './utils/filterNull.ts';
+import { filterNullUndefined } from './utils/filterNullUndefined.ts';
+import { filterUndefined } from './utils/filterUndefined.ts';
+import { getAsyncIterator } from './utils/getAsyncIterator.ts';
+import { wrapToAsyncIterator } from './utils/wrapToAsyncIterator.ts';
 
 export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
   private readonly _input: AsyncIterator<T>;
@@ -178,6 +180,18 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
     value?: (i: T) => V | PromiseLike<V>,
   ): Promise<Map<K, V>> {
     return asyncToMap(this.iterator, keyOrOptions, value);
+  }
+
+  public reduce(cb: (previous: T, current: T) => T): PromiseLike<T>;
+  public reduce<U>(cb: (previous: U, current: T) => U, initialValue: U): PromiseLike<U>;
+  public reduce<U = T>(cb: (previous: U, current: T) => U, initialValue?: U): PromiseLike<U> {
+    return asyncReduce(this.iterator, cb, initialValue);
+  }
+
+  public some(
+    cb: (item: T, index: number) => unknown | PromiseLike<unknown>,
+  ): PromiseLike<boolean> {
+    return asyncSome(this.iterator, cb);
   }
 
   public get iterator(): AsyncIterator<T> {

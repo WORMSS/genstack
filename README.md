@@ -68,6 +68,7 @@ for await (const message of gen) {
   - [.peek(cb)](#peekcb)
 - Terminators (insert Skynet joke)
   - [.toArray()](#toarray)
+  - [.toMap()](#tomap)
 
 #### GenStack.from(input)
 
@@ -310,10 +311,33 @@ I've listed both here.... Just because, you know.. reasons..
 
 ```ts
 // because I found out there is no simple way of spreading an asynchrous iterator into an array. And I am too lazy to write the same logic everywhere.
-await AsyncStack.from(myList).toArray();
+await AsyncGenStack.from(myList).toArray();
 
 // nothing more than a spread operator. You can be lazy and call .toArray or do [...gen] Only here to match the Async's function
 GenStack.from(myList).toArray();
+```
+
+#### .toMap()
+
+```ts
+toMap<K, V>(options?: ToMapOptions<T, K, V>): Map<K, V>;
+toMap<K, V>(key?: (i: T) => K, value?: (i: T) => V): Map<K, V>;
+```
+
+```ts
+GenStack.from(myList).toMap(); // Default
+GenStack.from(myList).toMap((i) => i); // Same Default
+GenStack.from(myList).toMap(
+  (i) => i,
+  (i) => i,
+); // Same Default
+GenStack.from(myList).toMap((i) => i.index); // custom key but default value
+GenStack.from(myList).toMap(
+  (i) => i.index,
+  (i) => i.value,
+); // custom key and custom value
+GenStack.from(myList).toMap({}); // Default
+GenStack.from(myList).toMap({ key: (i) => i.index, value: (i) => i.value }); // custom key and custom value
 ```
 
 ## Usage Examples

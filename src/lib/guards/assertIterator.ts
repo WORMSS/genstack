@@ -1,4 +1,4 @@
-import { isIterator } from './isIterator';
+import { isIterator } from './isIterator.ts';
 
 export function assertIterator<T>(obj: unknown): asserts obj is Iterator<T> {
   if (!isIterator(obj)) {

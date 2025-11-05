@@ -1,6 +1,6 @@
-import { FlatMapCallback } from '../types';
-import { getIterator } from '../utils/getIterator';
-import { wrapToIterable } from '../utils/wrapToIterable';
+import type { FlatMapCallback } from '../types.ts';
+import { getIterator } from '../utils/getIterator.ts';
+import { wrapToIterable } from '../utils/wrapToIterable.ts';
 
 export function* flatMapGen<T, U>(
   it: Iterator<T>,

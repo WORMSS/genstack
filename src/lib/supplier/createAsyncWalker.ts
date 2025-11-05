@@ -1,4 +1,4 @@
-import { AsyncWalkerChildren } from '../types';
+import type { AsyncWalkerChildren } from '../types.ts';
 
 export function createAsyncWalker<T>(
   node: T,

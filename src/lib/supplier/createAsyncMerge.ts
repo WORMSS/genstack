@@ -1,5 +1,5 @@
-import { AsyncMergeOptions } from '../types';
-import { getAsyncIterator } from '../utils/getAsyncIterator';
+import type { AsyncMergeOptions } from '../types.ts';
+import { getAsyncIterator } from '../utils/getAsyncIterator.ts';
 
 export async function* createAsyncMerge<T>(
   ...options: AsyncMergeOptions<T>

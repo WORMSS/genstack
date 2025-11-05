@@ -1,4 +1,4 @@
-import { Predicate } from '../types';
+import type { Predicate } from '../types.ts';
 
 export function filterGen<T, S extends T>(
   it: Iterator<T>,

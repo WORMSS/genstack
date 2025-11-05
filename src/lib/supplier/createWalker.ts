@@ -1,4 +1,4 @@
-import { WalkerChildren } from '../types';
+import type { WalkerChildren } from '../types.ts';
 
 export function createWalker<T>(
   node: T,

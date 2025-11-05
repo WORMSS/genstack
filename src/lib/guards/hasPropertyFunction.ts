@@ -1,4 +1,4 @@
-import { hasProperty } from './hasProperty';
+import { hasProperty } from './hasProperty.ts';
 
 export function hasPropertyFunction<T extends Record<keyof any, unknown>, P extends keyof any>(
   obj: T,

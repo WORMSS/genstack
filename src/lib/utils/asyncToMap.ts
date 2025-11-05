@@ -1,4 +1,4 @@
-import { AsyncToMapOptions } from '../types';
+import type { AsyncToMapOptions } from '../types.ts';
 
 export async function asyncToMap<T, K = T, V = T>(
   it: AsyncIterator<T>,

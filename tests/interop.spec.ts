@@ -1,5 +1,5 @@
-import { AsyncGenStack } from '../src/lib/AsyncGenStack';
-import { GenStack } from '../src/lib/GenStack';
+import { AsyncGenStack } from '../src/lib/AsyncGenStack.ts';
+import { GenStack } from '../src/lib/GenStack.ts';
 import { expect, it } from 'vitest';
 
 it('should have the same static methods on both AsyncGenStack and GenStack', () => {
