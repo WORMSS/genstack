@@ -3,9 +3,11 @@ export async function* asyncLimitGen<T>(
   limit: number,
 ): AsyncGenerator<T, any, undefined> {
   let i = 0;
-  let result = await input.next();
-  while (!result.done && i++ < limit) {
+  while (i++ < limit) {
+    let result = await input.next();
+    if (result.done) {
+      return;
+    }
     yield result.value;
-    result = await input.next();
   }
 }
