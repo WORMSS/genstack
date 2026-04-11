@@ -68,7 +68,7 @@ for await (const message of gen) {
   - [.runWhile(cb)](#runwhilecb)
   - [.runUntil(cb)](#rununtilcb)
 - Filtering (chainable)
-  - [.filter(cb)](#filtercb)
+  - [.filter(predicate)](#filterpredicate)
   - [.filterUndefined()](#filterundefined)
   - [.filterNull()](#filternull)
   - [.filterNullUndefined()](#filternullundefined)
@@ -94,8 +94,8 @@ for await (const message of gen) {
   - [.toMap()](#tomap)
   - [.toMap(options)](#tomapoptions)
   - [.toMap(key, value)](#tomapkey-value)
-  - [.reduce(cb, initial?)](#reducecb-initial)
-  - [.some(cb)](#somecb)
+  - [.reduce(callbackFn, initial?)](#reducecallbackfn-initial)
+  - [.some(predicate)](#somepredicate)
 
 #### GenStack.from(input)
 
@@ -368,7 +368,7 @@ Converts the stack to a Map using separate key and value mapper functions.
 GenStack.from(users).toMap(u => u.id, u => u.name);
 ```
 
-#### .reduce(cb, initial?)
+#### .reduce(callbackFn, initial?)
 
 Reduces the stack to a single value by executing a reducer function on each item. If no initial value is provided, it uses the first item as the accumulator.
 
