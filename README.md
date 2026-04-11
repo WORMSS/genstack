@@ -217,12 +217,12 @@ Yields items from the stack until the predicate returns `true`. It stops at the 
 GenStack.range().runUntil(n => n === 3); // 0, 1, 2
 ```
 
-### .filter(cb)
+### .filter(predicate)
 
-Filters items based on a predicate. Only items that return `true` are yielded. Supports Type Guards for proper type narrowing.
+Filters items based on a predicate. Only items that return a truthy value are yielded. Supports Type Guards for proper type narrowing.
 
 ```ts
-// throw away the values when cb returns false
+// throw away the values when predicate returns falsey
 GenStack.from([1, 2, 3, 4]).filter(n => n % 2 === 0); // 2, 4
 ```
 
@@ -377,9 +377,9 @@ Reduces the stack to a single value by executing a reducer function on each item
 const total = GenStack.range({ start: 1, end: 5 }).reduce((acc, val) => acc + val, 0); // 10
 ```
 
-#### .some(cb)
+#### .some(predicate)
 
-Tests whether at least one item in the stack passes the test implemented by the provided function. It returns a boolean and stops iteration as soon as a match is found.
+Tests whether at least one item in the stack returns a truthy value when passed to the provided predicate function. It returns a boolean and stops iteration as soon as a match is found.
 
 ```ts
 const hasEven = GenStack.range().some(n => n % 2 === 0); // true

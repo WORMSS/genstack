@@ -183,8 +183,8 @@ export class GenStack<T> implements IterableIterator<T> {
     return reduce(this.iterator, cb, initialValue);
   }
 
-  public some(cb: (item: T, index: number) => unknown): boolean {
-    return some(this.iterator, cb);
+  public some(predicate: (item: T, index: number) => unknown): boolean {
+    return some(this.iterator, predicate);
   }
 
   // Incase someone doesn't understand how this works

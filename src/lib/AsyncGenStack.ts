@@ -190,9 +190,9 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
   }
 
   public some(
-    cb: (item: T, index: number) => unknown | PromiseLike<unknown>,
+    predicate: (item: T, index: number) => unknown | PromiseLike<unknown>,
   ): PromiseLike<boolean> {
-    return asyncSome(this.iterator, cb);
+    return asyncSome(this.iterator, predicate);
   }
 
   public get iterator(): AsyncIterator<T> {
