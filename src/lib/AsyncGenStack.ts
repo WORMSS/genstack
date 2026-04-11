@@ -183,10 +183,13 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
     return asyncToMap(this.iterator, keyOrOptions as any, value);
   }
 
-  public reduce(cb: (previous: T, current: T) => T): PromiseLike<T>;
-  public reduce<U>(cb: (previous: U, current: T) => U, initialValue: U): PromiseLike<U>;
-  public reduce<U = T>(cb: (previous: U, current: T) => U, initialValue?: U): PromiseLike<U> {
-    return asyncReduce(this.iterator, cb, initialValue);
+  public reduce(callbackFn: (previous: T, current: T) => T): PromiseLike<T>;
+  public reduce<U>(callbackFn: (previous: U, current: T) => U, initialValue: U): PromiseLike<U>;
+  public reduce<U = T>(
+    callbackFn: (previous: U, current: T) => U,
+    initialValue?: U,
+  ): PromiseLike<U> {
+    return asyncReduce(this.iterator, callbackFn, initialValue);
   }
 
   public some(

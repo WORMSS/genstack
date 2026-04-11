@@ -177,10 +177,10 @@ export class GenStack<T> implements IterableIterator<T> {
     return toMap(this.iterator, keyOrOptions as any, value);
   }
 
-  public reduce(cb: (previous: T, current: T) => T): T;
-  public reduce<U>(cb: (previous: U, current: T) => U, initialValue: U): U;
-  public reduce<U = T>(cb: (previous: U, current: T) => U, initialValue?: U): U {
-    return reduce(this.iterator, cb, initialValue);
+  public reduce(callbackFn: (previous: T, current: T) => T): T;
+  public reduce<U>(callbackFn: (previous: U, current: T) => U, initialValue: U): U;
+  public reduce<U = T>(callbackFn: (previous: U, current: T) => U, initialValue?: U): U {
+    return reduce(this.iterator, callbackFn, initialValue);
   }
 
   public some(predicate: (item: T, index: number) => unknown): boolean {
