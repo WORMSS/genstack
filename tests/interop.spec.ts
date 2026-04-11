@@ -24,3 +24,17 @@ function props(obj: any): string[] {
   ];
   return Object.getOwnPropertyNames(obj).filter((v) => !filterOut.includes(v));
 }
+
+it('should correctly wrap sync iterable into AsyncGenStack', async () => {
+  const sync = [1, 2, 3];
+  const asyncStack = AsyncGenStack.from(sync);
+  expect(asyncStack).toBeInstanceOf(AsyncGenStack);
+  expect(await asyncStack.toArray()).toStrictEqual([1, 2, 3]);
+});
+
+it('should correctly wrap GenStack into AsyncGenStack', async () => {
+  const syncStack = GenStack.from([1, 2, 3]);
+  const asyncStack = AsyncGenStack.from(syncStack);
+  expect(asyncStack).toBeInstanceOf(AsyncGenStack);
+  expect(await asyncStack.toArray()).toStrictEqual([1, 2, 3]);
+});

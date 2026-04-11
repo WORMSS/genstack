@@ -339,26 +339,15 @@ await AsyncGenStack.from(myList).toArray();
 GenStack.from(myList).toArray();
 ```
 
-#### .toMap()
+#### .toMap(options)
+
+#### .toMap(key?, value?)
+
+Converts the stack to a Map. If no mappers are provided, each item is used as both the key and the value.
 
 ```ts
-toMap<K, V>(options?: ToMapOptions<T, K, V>): Map<K, V>;
-toMap<K, V>(key?: (i: T) => K, value?: (i: T) => V): Map<K, V>;
-```
-
-```ts
-GenStack.from(myList).toMap(); // Default
-GenStack.from(myList).toMap((i) => i); // Same Default
-GenStack.from(myList).toMap(
-  (i) => i,
-  (i) => i,
-); // Same Default
-GenStack.from(myList).toMap((i) => i.index); // custom key but default value
-GenStack.from(myList).toMap(
-  (i) => i.index,
-  (i) => i.value,
-); // custom key and custom value
-GenStack.from(myList).toMap({}); // Default
+GenStack.from(myList).toMap(); // item is key, item is value
+GenStack.from(myList).toMap((i) => i.index, (i) => i.value); // custom key and custom value
 GenStack.from(myList).toMap({ key: (i) => i.index, value: (i) => i.value }); // custom key and custom value
 ```
 

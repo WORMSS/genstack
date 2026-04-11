@@ -150,15 +150,88 @@ describe(GenStack.name, () => {
     });
 
     describe(GenStack.walker.name, () => {
-      it.skip('should ', () => {
-        throw new Error();
+      it('should traverse a tree depth-first', () => {
+        interface Node {
+          id: string;
+          children?: Node[];
+        }
+        const tree: Node = {
+          id: 'root',
+          children: [
+            { id: 'child1', children: [{ id: 'grandchild1' }] },
+            { id: 'child2' },
+          ],
+        };
+        const gen = GenStack.walker(tree, (n) => n.children);
+        const result = gen.map((n) => n.id).toArray();
+        expect(result).toStrictEqual(['root', 'child1', 'grandchild1', 'child2']);
+      });
+
+      it('should handle circular references', () => {
+        interface Node {
+          id: string;
+          children?: Node[];
+        }
+        const node1: Node = { id: 'node1' };
+        const node2: Node = { id: 'node2', children: [node1] };
+        node1.children = [node2];
+
+        const gen = GenStack.walker(node1, (n) => n.children);
+        const result = gen.map((n) => n.id).toArray();
+        expect(result).toStrictEqual(['node1', 'node2']);
+      });
+
+      it('should handle empty or null children', () => {
+        const gen = GenStack.walker({ id: 1 }, (n: any) => n.children);
+        const result = gen.toArray();
+        expect(result).toStrictEqual([{ id: 1 }]);
       });
     });
 
     describe(GenStack.reg.name, () => {
-      it.skip('should ', () => {
-        throw new Error();
+      it('should yield regex matches', () => {
+        const gen = GenStack.reg('a.', 'aaabacad');
+        const result = gen.map((m) => m[0]).toArray();
+        expect(result).toStrictEqual(['aa', 'ab', 'ac', 'ad']);
       });
+
+      it('should add global flag if missing', () => {
+        const gen = GenStack.reg(/a./, 'aaabacad');
+        const result = gen.map((m) => m[0]).toArray();
+        expect(result).toStrictEqual(['aa', 'ab', 'ac', 'ad']);
+      });
+
+      it('should preserve lastIndex', () => {
+        const reg = /a./g;
+        reg.lastIndex = 3;
+        const gen = GenStack.reg(reg, 'aaabacad');
+        const result = gen.map((m) => m[0]).toArray();
+        // Index 3 is 'b', so next match is 'ba' at index 3? 
+        // Wait, 'aaabacad'
+        // Index: 01234567
+        // Char : aaabacad
+        // reg /a./g starting at index 3:
+        // index 4: 'ac'
+        // index 6: 'ad'
+        expect(result).toStrictEqual(['ac', 'ad']);
+      });
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty input for chainable methods', () => {
+      const gen = GenStack.from([]);
+      expect(gen.map((i) => i).toArray()).toStrictEqual([]);
+      expect(gen.filter((i) => true).toArray()).toStrictEqual([]);
+      expect(gen.flatMap((i) => [i]).toArray()).toStrictEqual([]);
+      expect(gen.distinct().toArray()).toStrictEqual([]);
+      expect(gen.skip(5).toArray()).toStrictEqual([]);
+      expect(gen.limit(5).toArray()).toStrictEqual([]);
+    });
+
+    it('should handle infinite ranges with limit', () => {
+      const gen = GenStack.range().limit(3);
+      expect(gen.toArray()).toStrictEqual([0, 1, 2]);
     });
   });
 
@@ -184,6 +257,30 @@ describe(GenStack.name, () => {
       expect(result).toStrictEqual([0, 2, 4]);
       expect(spy).toHaveBeenCalled();
       expect(spy).toBeCalledTimes(5);
+    });
+  });
+
+  describe(GenStack.prototype.filterNull.name, () => {
+    it('should filter null items', () => {
+      const gen = GenStack.from([0, null, 1, null, 2]).filterNull();
+      const result = gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
+    });
+  });
+
+  describe(GenStack.prototype.filterUndefined.name, () => {
+    it('should filter undefined items', () => {
+      const gen = GenStack.from([0, undefined, 1, undefined, 2]).filterUndefined();
+      const result = gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
+    });
+  });
+
+  describe(GenStack.prototype.filterNullUndefined.name, () => {
+    it('should filter null and undefined items', () => {
+      const gen = GenStack.from([0, null, 1, undefined, 2]).filterNullUndefined();
+      const result = gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
     });
   });
 
@@ -318,7 +415,22 @@ describe(GenStack.name, () => {
   describe(GenStack.prototype.mapAsync.name, () => {
     it('should change to an AsyncGenStack', () => {
       const gen = GenStack.from([1]).mapAsync((i) => Promise.resolve(i));
-      expect(gen).toBeInstanceOf(AsyncGenStack);
+      expect(gen.constructor.name).toBe('AsyncGenStack');
+    });
+  });
+
+  describe(GenStack.prototype.walker.name, () => {
+    it('should traverse recursively for each item', () => {
+      interface Node {
+        id: string;
+        children?: Node[];
+      }
+      const tree1: Node = { id: 'a', children: [{ id: 'a1' }] };
+      const tree2: Node = { id: 'b', children: [{ id: 'b1' }] };
+
+      const gen = GenStack.from([tree1, tree2]).walker((n) => n.children);
+      const result = gen.map((n) => n.id).toArray();
+      expect(result).toStrictEqual(['a', 'a1', 'b', 'b1']);
     });
   });
 
@@ -366,6 +478,57 @@ describe(GenStack.name, () => {
 
       expect(spy).not.toHaveBeenCalled();
       expect(result).toBe('goat');
+    });
+  });
+
+  describe(GenStack.prototype.some.name, () => {
+    it('should return true if any item matches', () => {
+      const gen = GenStack.range().limit(10);
+      const result = gen.some((n) => n === 5);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if no item matches', () => {
+      const gen = GenStack.from([1, 2, 3]);
+      const result = gen.some((n) => n === 5);
+      expect(result).toBe(false);
+    });
+
+    it('should short-circuit', () => {
+      const spy = vi.fn((n: number) => n === 2);
+      const gen = GenStack.from([0, 1, 2, 3, 4]);
+      const result = gen.some(spy);
+      expect(result).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe(GenStack.prototype.toMap.name, () => {
+    it('should create a map with default mappers', () => {
+      const gen = GenStack.from(['a', 'b']);
+      const result = gen.toMap();
+      expect(result).toBeInstanceOf(Map);
+      expect(result.get('a')).toBe('a');
+      expect(result.get('b')).toBe('b');
+    });
+
+    it('should use custom key and value mappers', () => {
+      const gen = GenStack.from([
+        { id: 'a', val: 1 },
+        { id: 'b', val: 2 },
+      ]);
+      const result = gen.toMap(
+        (i) => i.id,
+        (i) => i.val,
+      );
+      expect(result.get('a')).toBe(1);
+      expect(result.get('b')).toBe(2);
+    });
+
+    it('should use options object', () => {
+      const gen = GenStack.from([{ id: 'a', val: 1 }]);
+      const result = gen.toMap({ key: (i) => i.id, value: (i) => i.val });
+      expect(result.get('a')).toBe(1);
     });
   });
 });

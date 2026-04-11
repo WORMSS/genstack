@@ -96,15 +96,81 @@ describe(AsyncGenStack.name, () => {
     });
 
     describe(AsyncGenStack.walker.name, () => {
-      it.skip('should ', () => {
-        throw new Error();
+      it('should traverse a tree depth-first', async () => {
+        interface Node {
+          id: string;
+          children?: Node[];
+        }
+        const tree: Node = {
+          id: 'root',
+          children: [
+            { id: 'child1', children: [{ id: 'grandchild1' }] },
+            { id: 'child2' },
+          ],
+        };
+        const gen = AsyncGenStack.walker(tree, (n) => n.children);
+        const result = await gen.map((n) => n.id).toArray();
+        expect(result).toStrictEqual(['root', 'child1', 'grandchild1', 'child2']);
+      });
+
+      it('should handle circular references', async () => {
+        interface Node {
+          id: string;
+          children?: Node[];
+        }
+        const node1: Node = { id: 'node1' };
+        const node2: Node = { id: 'node2', children: [node1] };
+        node1.children = [node2];
+
+        const gen = AsyncGenStack.walker(node1, (n) => n.children);
+        const result = await gen.map((n) => n.id).toArray();
+        expect(result).toStrictEqual(['node1', 'node2']);
+      });
+
+      it('should handle empty or null children', async () => {
+        const gen = AsyncGenStack.walker({ id: 1 }, (n: any) => n.children);
+        const result = await gen.toArray();
+        expect(result).toStrictEqual([{ id: 1 }]);
       });
     });
 
     describe(AsyncGenStack.reg.name, () => {
-      it.skip('should ', () => {
-        throw new Error();
+      it('should yield regex matches', async () => {
+        const gen = AsyncGenStack.reg('a.', 'aaabacad');
+        const result = await gen.map((m) => m[0]).toArray();
+        expect(result).toStrictEqual(['aa', 'ab', 'ac', 'ad']);
       });
+
+      it('should add global flag if missing', async () => {
+        const gen = AsyncGenStack.reg(/a./, 'aaabacad');
+        const result = await gen.map((m) => m[0]).toArray();
+        expect(result).toStrictEqual(['aa', 'ab', 'ac', 'ad']);
+      });
+
+      it('should preserve lastIndex', async () => {
+        const reg = /a./g;
+        reg.lastIndex = 3;
+        const gen = AsyncGenStack.reg(reg, 'aaabacad');
+        const result = await gen.map((m) => m[0]).toArray();
+        expect(result).toStrictEqual(['ac', 'ad']);
+      });
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty input for chainable methods', async () => {
+      const gen = AsyncGenStack.from([]);
+      expect(await gen.map((i) => i).toArray()).toStrictEqual([]);
+      expect(await gen.filter((i) => true).toArray()).toStrictEqual([]);
+      expect(await gen.flatMap((i) => [i]).toArray()).toStrictEqual([]);
+      expect(await gen.distinct().toArray()).toStrictEqual([]);
+      expect(await gen.skip(5).toArray()).toStrictEqual([]);
+      expect(await gen.limit(5).toArray()).toStrictEqual([]);
+    });
+
+    it('should handle infinite ranges with limit', async () => {
+      const gen = AsyncGenStack.range().limit(3);
+      expect(await gen.toArray()).toStrictEqual([0, 1, 2]);
     });
   });
 
@@ -138,6 +204,30 @@ describe(AsyncGenStack.name, () => {
       expect(result).toStrictEqual([0, 2, 4]);
       expect(spy).toHaveBeenCalled();
       expect(spy).toBeCalledTimes(5);
+    });
+  });
+
+  describe(AsyncGenStack.prototype.filterNull.name, () => {
+    it('should filter null items', async () => {
+      const gen = AsyncGenStack.from([0, null, 1, null, 2]).filterNull();
+      const result = await gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
+    });
+  });
+
+  describe(AsyncGenStack.prototype.filterUndefined.name, () => {
+    it('should filter undefined items', async () => {
+      const gen = AsyncGenStack.from([0, undefined, 1, undefined, 2]).filterUndefined();
+      const result = await gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
+    });
+  });
+
+  describe(AsyncGenStack.prototype.filterNullUndefined.name, () => {
+    it('should filter null and undefined items', async () => {
+      const gen = AsyncGenStack.from([0, null, 1, undefined, 2]).filterNullUndefined();
+      const result = await gen.toArray();
+      expect(result).toStrictEqual([0, 1, 2]);
     });
   });
 
@@ -272,6 +362,21 @@ describe(AsyncGenStack.name, () => {
     });
   });
 
+  describe(AsyncGenStack.prototype.walker.name, () => {
+    it('should traverse recursively for each item', async () => {
+      interface Node {
+        id: string;
+        children?: Node[];
+      }
+      const tree1: Node = { id: 'a', children: [{ id: 'a1' }] };
+      const tree2: Node = { id: 'b', children: [{ id: 'b1' }] };
+
+      const gen = AsyncGenStack.from([tree1, tree2]).walker((n) => n.children);
+      const result = await gen.map((n) => n.id).toArray();
+      expect(result).toStrictEqual(['a', 'a1', 'b', 'b1']);
+    });
+  });
+
   describe(AsyncGenStack.prototype.reduce.name, () => {
     const accuulator = (prev: number, curr: number) => prev + curr;
     const emptyNumbers: number[] = [];
@@ -316,6 +421,57 @@ describe(AsyncGenStack.name, () => {
 
       expect(spy).not.toHaveBeenCalled();
       expect(result).toBe('goat');
+    });
+  });
+
+  describe(AsyncGenStack.prototype.some.name, () => {
+    it('should return true if any item matches', async () => {
+      const gen = AsyncGenStack.range().limit(10);
+      const result = await gen.some((n) => n === 5);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if no item matches', async () => {
+      const gen = AsyncGenStack.from([1, 2, 3]);
+      const result = await gen.some((n) => n === 5);
+      expect(result).toBe(false);
+    });
+
+    it('should short-circuit', async () => {
+      const spy = vi.fn((n: number) => n === 2);
+      const gen = AsyncGenStack.from([0, 1, 2, 3, 4]);
+      const result = await gen.some(spy);
+      expect(result).toBe(true);
+      expect(spy).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe(AsyncGenStack.prototype.toMap.name, () => {
+    it('should create a map with default mappers', async () => {
+      const gen = AsyncGenStack.from(['a', 'b']);
+      const result = await gen.toMap();
+      expect(result).toBeInstanceOf(Map);
+      expect(result.get('a')).toBe('a');
+      expect(result.get('b')).toBe('b');
+    });
+
+    it('should use custom key and value mappers', async () => {
+      const gen = AsyncGenStack.from([
+        { id: 'a', val: 1 },
+        { id: 'b', val: 2 },
+      ]);
+      const result = await gen.toMap(
+        (i) => i.id,
+        (i) => i.val,
+      );
+      expect(result.get('a')).toBe(1);
+      expect(result.get('b')).toBe(2);
+    });
+
+    it('should use options object', async () => {
+      const gen = AsyncGenStack.from([{ id: 'a', val: 1 }]);
+      const result = await gen.toMap({ key: (i) => i.id, value: (i) => i.val });
+      expect(result.get('a')).toBe(1);
     });
   });
 });
