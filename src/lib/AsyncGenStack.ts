@@ -170,16 +170,17 @@ export class AsyncGenStack<T> implements AsyncIterableIterator<T> {
     return asyncToArray(this);
   }
 
-  public toMap<K, V>(options?: AsyncToMapOptions<T, K, V>): Promise<Map<K, V>>;
+  public toMap(): Promise<Map<T, T>>;
+  public toMap<K, V>(options: AsyncToMapOptions<T, K, V>): Promise<Map<K, V>>;
   public toMap<K, V>(
-    key?: (i: T) => K | PromiseLike<K>,
+    key?: ((i: T) => K | PromiseLike<K>) | null,
     value?: (i: T) => V | PromiseLike<V>,
   ): Promise<Map<K, V>>;
   public toMap<K, V>(
-    keyOrOptions?: AsyncToMapOptions<T, K, V> | ((i: T) => K | PromiseLike<K>),
+    keyOrOptions?: AsyncToMapOptions<T, K, V> | ((i: T) => K | PromiseLike<K>) | null,
     value?: (i: T) => V | PromiseLike<V>,
   ): Promise<Map<K, V>> {
-    return asyncToMap(this.iterator, keyOrOptions, value);
+    return asyncToMap(this.iterator, keyOrOptions as any, value);
   }
 
   public reduce(cb: (previous: T, current: T) => T): PromiseLike<T>;

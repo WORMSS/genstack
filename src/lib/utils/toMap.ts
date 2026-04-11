@@ -1,21 +1,28 @@
 import type { ToMapOptions } from '../types.ts';
 
+export function toMap<T>(it: Iterator<T>): Map<T, T>;
+export function toMap<T, K, V>(it: Iterator<T>, options: ToMapOptions<T, K, V>): Map<K, V>;
+export function toMap<T, K, V>(
+  it: Iterator<T>,
+  key?: ((i: T) => K) | null,
+  value?: (i: T) => V,
+): Map<K, V>;
 export function toMap<T, K = T, V = T>(
   it: Iterator<T>,
-  keyOrOptions?: ToMapOptions<T, K, V> | ((i: T) => K),
+  keyOrOptions?: ToMapOptions<T, K, V> | ((i: T) => K) | null,
   value?: (i: T) => V,
 ): Map<K, V> {
   let keyMaker: (i: T) => K;
   let valueMaker: (i: T) => V;
 
-  if (keyOrOptions === undefined && value === undefined) {
+  if ((keyOrOptions === undefined || keyOrOptions === null) && value === undefined) {
     keyMaker = (i) => i as unknown as K;
     valueMaker = (i) => i as unknown as V;
-  } else if (typeof keyOrOptions === 'object') {
+  } else if (typeof keyOrOptions === 'object' && keyOrOptions !== null) {
     keyMaker = keyOrOptions.key ?? ((i) => i as unknown as K);
     valueMaker = keyOrOptions.value ?? ((i) => i as unknown as V);
   } else {
-    keyMaker = keyOrOptions ?? ((i) => i as unknown as K);
+    keyMaker = (keyOrOptions as (i: T) => K) ?? ((i) => i as unknown as K);
     valueMaker = value ?? ((i) => i as unknown as V);
   }
 

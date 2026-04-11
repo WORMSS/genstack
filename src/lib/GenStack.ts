@@ -167,13 +167,14 @@ export class GenStack<T> implements IterableIterator<T> {
     return [...this];
   }
 
-  public toMap<K, V>(options?: ToMapOptions<T, K, V>): Map<K, V>;
-  public toMap<K, V>(key?: (i: T) => K, value?: (i: T) => V): Map<K, V>;
+  public toMap(): Map<T, T>;
+  public toMap<K, V>(options: ToMapOptions<T, K, V>): Map<K, V>;
+  public toMap<K, V>(key?: ((i: T) => K) | null, value?: (i: T) => V): Map<K, V>;
   public toMap<K, V>(
-    keyOrOptions?: ToMapOptions<T, K, V> | ((i: T) => K),
+    keyOrOptions?: ToMapOptions<T, K, V> | ((i: T) => K) | null,
     value?: (i: T) => V,
   ): Map<K, V> {
-    return toMap(this.iterator, keyOrOptions, value);
+    return toMap(this.iterator, keyOrOptions as any, value);
   }
 
   public reduce(cb: (previous: T, current: T) => T): T;

@@ -1,21 +1,31 @@
 import type { AsyncToMapOptions } from '../types.ts';
 
+export function asyncToMap<T>(it: AsyncIterator<T>): Promise<Map<T, T>>;
+export function asyncToMap<T, K, V>(
+  it: AsyncIterator<T>,
+  options: AsyncToMapOptions<T, K, V>,
+): Promise<Map<K, V>>;
+export function asyncToMap<T, K, V>(
+  it: AsyncIterator<T>,
+  key?: ((i: T) => K | PromiseLike<K>) | null,
+  value?: (i: T) => V | PromiseLike<V>,
+): Promise<Map<K, V>>;
 export async function asyncToMap<T, K = T, V = T>(
   it: AsyncIterator<T>,
-  keyOrOptions?: AsyncToMapOptions<T, K, V> | ((i: T) => K | PromiseLike<K>),
+  keyOrOptions?: AsyncToMapOptions<T, K, V> | ((i: T) => K | PromiseLike<K>) | null,
   value?: (i: T) => V | PromiseLike<V>,
 ): Promise<Map<K, V>> {
   let keyMaker: (i: T) => K | PromiseLike<K>;
   let valueMaker: (i: T) => V | PromiseLike<V>;
 
-  if (keyOrOptions === undefined && value === undefined) {
+  if ((keyOrOptions === undefined || keyOrOptions === null) && value === undefined) {
     keyMaker = (i) => i as unknown as K;
     valueMaker = (i) => i as unknown as V;
-  } else if (typeof keyOrOptions === 'object') {
+  } else if (typeof keyOrOptions === 'object' && keyOrOptions !== null) {
     keyMaker = keyOrOptions.key ?? ((i) => i as unknown as K);
     valueMaker = keyOrOptions.value ?? ((i) => i as unknown as V);
   } else {
-    keyMaker = keyOrOptions ?? ((i) => i as unknown as K);
+    keyMaker = (keyOrOptions as (i: T) => K) ?? ((i) => i as unknown as K);
     valueMaker = value ?? ((i) => i as unknown as V);
   }
 
