@@ -7,13 +7,18 @@ export function toMap<T, K = T, V = T>(
 ): Map<K, V> {
   let keyMaker: (i: T) => K;
   let valueMaker: (i: T) => V;
-  if (typeof keyOrOptions === 'object') {
+
+  if (keyOrOptions === undefined && value === undefined) {
+    keyMaker = (i) => i as unknown as K;
+    valueMaker = (i) => i as unknown as V;
+  } else if (typeof keyOrOptions === 'object') {
     keyMaker = keyOrOptions.key ?? ((i) => i as unknown as K);
     valueMaker = keyOrOptions.value ?? ((i) => i as unknown as V);
   } else {
     keyMaker = keyOrOptions ?? ((i) => i as unknown as K);
     valueMaker = value ?? ((i) => i as unknown as V);
   }
+
   const map: Map<K, V> = new Map();
   let result = it.next();
   while (!result.done) {
