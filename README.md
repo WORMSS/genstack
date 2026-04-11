@@ -8,6 +8,29 @@ and everything is chainable.
 
 GenStack and AsyncGenStack are themselves iterable and iterators, to give the most interoperability with other packages and libraries.
 
+## Project Summary
+
+`@wormss/genstack` is a TypeScript library providing a **fluent, functional-style API** for working with synchronous and asynchronous iterables. It implements patterns similar to Java Streams or LINQ, enabling chained operations like `map`, `filter`, `flatMap`, and `distinct` on top of JavaScript generators.
+
+The library is built for **lazy evaluation**, processing data one item at a time only when requested. This makes it highly efficient for large or infinite datasets.
+
+### Pros
+
+- **Lazy Evaluation:** Leverages generators to avoid creating intermediate arrays, significantly reducing memory usage for large collections.
+- **Unified Sync/Async Workflow:** Provides a seamless transition between synchronous (`GenStack`) and asynchronous (`AsyncGenStack`) processing. Methods like `.mapAsync()` automatically upgrade a sync stack to an async one.
+- **Comprehensive Utility Set:** Includes powerful suppliers such as `range` for sequences, `walker` for recursive traversal, `interlace`/`merge` for combining iterables, and `reg` for regex match iteration.
+- **Strong Type Safety:** Written in TypeScript with robust generics and type guards (e.g., `filterNull`, `filterUndefined`), ensuring accurate type narrowing.
+- **Native Compatibility:** Implements the `IterableIterator` interface, ensuring full compatibility with `for...of` loops, the spread operator, and `Array.from()`.
+- **Zero Runtime Dependencies:** A lightweight package with no external production dependencies.
+
+### Cons
+
+- **Performance Overhead:** Each chained operation adds a layer of generator function calls. It is slower than a single `for` loop or highly optimized array-based libraries for small, in-memory datasets.
+- **Complexity for Simple Cases:** Native `Array.map()` and `Array.filter()` are more idiomatic and simpler for small arrays that fit comfortably in memory.
+- **Debugging Difficulty:** Stepping through chained generator calls in a debugger is more complex than debugging imperative loops due to the frequent state jumps between generators.
+- **Async/Sync Distinction:** Users must explicitly manage the transition between `GenStack` and `AsyncGenStack`, requiring an understanding of Promises and AsyncIterators.
+- **Sequential Processing Only:** It lacks built-in support for concurrent async processing with a limit (e.g., "process 5 items at a time"). All operations are processed sequentially.
+
 ```bash
 npm i @wormss/genstack
 ```
@@ -34,7 +57,7 @@ for await (const message of gen) {
 
 - Static
   - [GenStack.from(input)](#genstackfrominput)
-  - [GenStack.generator(func)](#genstackgeneratorfunc)
+  - [GenStack.generate(func)](#genstackgeneratefunc)
   - [GenStack.range(options)](#genstackrangeoptions)
   - [GenStack.merge(...inputs)](#genstackmergeinputs)
   - [GenStack.interlace(...inputs)](#genstackinterlaceinputs)
@@ -49,7 +72,7 @@ for await (const message of gen) {
   - [.filterUndefined()](#filterundefined)
   - [.filterNull()](#filternull)
   - [.filterNullUndefined()](#filternullundefined)
-  - [.distinct](#distinct)
+  - [.distinct()](#distinct)
   - [.distinctBy(cb)](#distinctbycb)
   - [.skip(num)](#skipnum)
   - [.skipWhile(cb)](#skipwhilecb)
@@ -66,9 +89,11 @@ for await (const message of gen) {
   - [.interlace(...inputs)](#interlaceinputs)
 - Utility (chainable)
   - [.peek(cb)](#peekcb)
-- Terminators (insert Skynet joke)
+- Terminators
   - [.toArray()](#toarray)
   - [.toMap()](#tomap)
+  - [.reduce(cb, initial?)](#reducecb-initial)
+  - [.some(cb)](#somecb)
 
 #### GenStack.from(input)
 
@@ -90,7 +115,7 @@ const gen = AsyncGenStack.from(myAsyncGenerator()); // Async GenStack from async
 const gen = AsyncGenStack.from(GenStack.from([1, 2, 3])); // Because why not.
 ```
 
-#### GenStack.generator(func)
+#### GenStack.generate(func)
 
 Infinitly call a supplied function for values.
 
@@ -130,139 +155,136 @@ const gen = AsyncGenStack.range({});
 
 ### GenStack.merge(...inputs)
 
-**_// TODO add more info_**
-
-Merge (or concatinate) multiple iterators or iterables together
+Concatenates multiple iterators or iterables together. It finishes the first iterable before moving to the next.
 
 ```ts
 // 0...many number of iterable_or_iterators
-GenStack.merge(iterable1, iterable2, ...iterables);
+const gen = GenStack.merge([1, 2], [3, 4]); // 1, 2, 3, 4
 ```
 
 ### GenStack.interlace(...inputs)
 
-**_// TODO add more info_**
-
-Interlace multiple iterators or iterables together. Taking 1 from each at a time
+Interlaces multiple iterators or iterables together, taking one item from each in a round-robin fashion until all are exhausted.
 
 ```ts
 // 0...many number of iterable_or_iterators
-GenStack.interlace(iterable1, iterable2, ...iterables);
+const gen = GenStack.interlace([1, 2, 3], ['a', 'b']); // 1, 'a', 2, 'b', 3
 ```
 
 ### GenStack.walker(node, children)
 
-**_// TODO add more info_**
+Recursively traverses a tree-like structure starting from a root node. It uses a `Set` to track visited nodes and prevent infinite loops from circular references.
 
 ```ts
-GenStack.walker({ children: [] }, (n) => n.children);
+const root = { id: 1, children: [{ id: 2, children: [] }] };
+const gen = GenStack.walker(root, (n) => n.children); // root, child1, child2...
 ```
 
 ### GenStack.reg(reg, content)
 
-**_// TODO add more info_**
+Creates a generator that yields `RegExpExecArray` matches from a string. It automatically adds the 'global' flag to the regex if it is missing.
 
 ```ts
-GenStack.reg('a.', 'aaabacad');
+const gen = GenStack.reg(/a./, 'aaabacad'); // matches 'aa', 'ab', 'ac', 'ad'
 ```
 
 ### .limit(num)
 
-**_// TODO add more info_**
+Limits the number of items yielded by the stack.
 
 ```ts
 // only run until x number of values before stopping
-GenStack.from(myList).limit(num);
+GenStack.range().limit(5); // 0, 1, 2, 3, 4
 ```
 
 ### .runWhile(cb)
 
-**_// TODO add more info_**
+Yields items from the stack as long as the predicate returns `true`. It stops at the first item that returns `false` (and does not yield that item).
 
 ```ts
 // lets everything through until cb returns false.
-GenStack.from(myList).runWhile(cb);
+GenStack.range().runWhile(n => n < 3); // 0, 1, 2
 ```
 
 ### .runUntil(cb)
 
-**_// TODO add more info_**
+Yields items from the stack until the predicate returns `true`. It stops at the first item that returns `true` (and does not yield that item).
 
 ```ts
 // lets everything through until cb returns true
-GenStack.from(myList).runUntil(cb);
+GenStack.range().runUntil(n => n === 3); // 0, 1, 2
 ```
 
 ### .filter(cb)
 
-**_// TODO add more info_**
+Filters items based on a predicate. Only items that return `true` are yielded. Supports Type Guards for proper type narrowing.
 
 ```ts
 // throw away the values when cb returns false
-GenStack.from(myList).filter(cb);
+GenStack.from([1, 2, 3, 4]).filter(n => n % 2 === 0); // 2, 4
 ```
 
-### .distinct
+### .distinct()
 
-**_// TODO add more info_**
+Yields only distinct items by maintaining a `Set` of previously seen values.
 
 ```ts
 // throw away values when they strictly match previous values
-GenStack.from(myList).distinct();
+GenStack.from([1, 2, 1, 3, 2]).distinct(); // 1, 2, 3
 ```
 
 ### .distinctBy(cb)
 
-**_// TODO add more info_**
+Yields items that are distinct based on the value returned by the callback function.
 
 ```ts
 // throw away values when cb returned values match previous cb values.
-GenStack.from(myList).distinctBy(cb);
+GenStack.from([{ id: 1 }, { id: 2 }, { id: 1 }]).distinctBy(item => item.id); // { id: 1 }, { id: 2 }
 ```
 
 ### .skip(num)
 
-**_// TODO add more info_**
+Skips the first `num` items in the stack.
 
 ```ts
 // throw away the first x number of values
-GenStack.from(myList).skip(num);
+GenStack.range().skip(2); // 2, 3, 4...
 ```
 
 ### .skipWhile(cb)
 
-**_// TODO add more info_**
+Skips items as long as the predicate returns `true`. Once the predicate returns `false`, all subsequent items are yielded.
 
 ```ts
 // skips all values until cb returns false, then lets everything else through
-GenStack.from(myList).skipWhile(cb);
+GenStack.from([1, 2, 3, 4, 1]).skipWhile(n => n < 3); // 3, 4, 1
 ```
 
 ### .skipUntil(cb)
 
-**_// TODO add more info_**
+Skips items until the predicate returns `true`. Once the predicate returns `true`, all subsequent items (including the one that triggered the predicate) are yielded.
 
 ```ts
 // skips all values until cb returns true, then lets everything else through
-GenStack.from(myList).skipUntil(cb);
+GenStack.from([1, 2, 3, 4]).skipUntil(n => n === 3); // 3, 4
 ```
 
 ### .map(cb)
 
-**_// TODO add more info_**
+Transforms each item yielded by the stack using the provided callback function.
 
 ```ts
 // change value into another value
-GenStack.from(myList).map(cb);\
+GenStack.range().map(n => n * 2); // 0, 2, 4...
 ```
 
 ### .mapAsync(cb)
 
-**_// TODO add more info_**
+Transforms each item asynchronously. This converts the `GenStack` into an `AsyncGenStack`. Items are processed sequentially (one at a time).
 
 ```ts
 // use the value to do some asynchrous call. Remember this is nice lazy evaluation, so will only run 1 at a time
-GenStack.from(myList).mapAsync(cb);
+GenStack.range().mapAsync(async n => n * 2); // Promise<0>, Promise<2>... (handled by AsyncGenStack)
 ```
 
 #### .flatmap(cb)
@@ -338,6 +360,23 @@ GenStack.from(myList).toMap(
 ); // custom key and custom value
 GenStack.from(myList).toMap({}); // Default
 GenStack.from(myList).toMap({ key: (i) => i.index, value: (i) => i.value }); // custom key and custom value
+```
+
+#### .reduce(cb, initial?)
+
+Reduces the stack to a single value by executing a reducer function on each item. If no initial value is provided, it uses the first item as the accumulator.
+
+```ts
+// Summing a range
+const total = GenStack.range({ start: 1, end: 5 }).reduce((acc, val) => acc + val, 0); // 10
+```
+
+#### .some(cb)
+
+Tests whether at least one item in the stack passes the test implemented by the provided function. It returns a boolean and stops iteration as soon as a match is found.
+
+```ts
+const hasEven = GenStack.range().some(n => n % 2 === 0); // true
 ```
 
 ## Usage Examples
