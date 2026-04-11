@@ -92,6 +92,8 @@ for await (const message of gen) {
 - Terminators
   - [.toArray()](#toarray)
   - [.toMap()](#tomap)
+  - [.toMap(options)](#tomapoptions)
+  - [.toMap(key, value)](#tomapkey-value)
   - [.reduce(cb, initial?)](#reducecb-initial)
   - [.some(cb)](#somecb)
 
@@ -339,16 +341,31 @@ await AsyncGenStack.from(myList).toArray();
 GenStack.from(myList).toArray();
 ```
 
-#### .toMap(options)
+#### .toMap()
 
-#### .toMap(key?, value?)
-
-Converts the stack to a Map. If no mappers are provided, each item is used as both the key and the value.
+Converts the stack to a Map where each item is used as both the key and the value.
 
 ```ts
-GenStack.from(myList).toMap(); // item is key, item is value
-GenStack.from(myList).toMap((i) => i.index, (i) => i.value); // custom key and custom value
-GenStack.from(myList).toMap({ key: (i) => i.index, value: (i) => i.value }); // custom key and custom value
+GenStack.from(['a', 'b']).toMap(); // Map { 'a' => 'a', 'b' => 'b' }
+```
+
+#### .toMap(options)
+
+Converts the stack to a Map using an options object to define mappers.
+
+```ts
+GenStack.from(users).toMap({ 
+  key: u => u.id, 
+  value: u => u.name 
+});
+```
+
+#### .toMap(key, value)
+
+Converts the stack to a Map using separate key and value mapper functions.
+
+```ts
+GenStack.from(users).toMap(u => u.id, u => u.name);
 ```
 
 #### .reduce(cb, initial?)
