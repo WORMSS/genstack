@@ -205,6 +205,12 @@ describe(AsyncGenStack.name, () => {
       expect(spy).toHaveBeenCalled();
       expect(spy).toBeCalledTimes(5);
     });
+
+    it('should handle truthy/falsy return values', async () => {
+      const gen = AsyncGenStack.from([0, 1, '', 'a', null, {}, undefined]);
+      const result = await gen.filter((i: any) => i).toArray();
+      expect(result).toStrictEqual([1, 'a', {}]);
+    });
   });
 
   describe(AsyncGenStack.prototype.filterNull.name, () => {
@@ -443,6 +449,11 @@ describe(AsyncGenStack.name, () => {
       const result = await gen.some(spy);
       expect(result).toBe(true);
       expect(spy).toHaveBeenCalledTimes(3);
+    });
+
+    it('should handle truthy/falsy return values', async () => {
+      expect(await AsyncGenStack.from([0, 0, 1]).some((i: any) => i)).toBe(true);
+      expect(await AsyncGenStack.from([0, '', null]).some((i: any) => i)).toBe(false);
     });
   });
 
