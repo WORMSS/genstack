@@ -1,5 +1,20 @@
 import type { RangeOptions } from '../types.ts';
 
+/**
+ * Creates a generator that yields a range of numbers.
+ *
+ * @param options - Configuration for the range (start, end, step).
+ * @returns A generator yielding numbers in the specified range.
+ *
+ * @example
+ * ```typescript
+ * // Yields 0, 1, 2, 3, 4
+ * const range = createRange({ start: 0, end: 5, step: 1 });
+ *
+ * // Yields 0, 1, 2, ... (infinite)
+ * const infiniteRange = createRange({ start: 0 });
+ * ```
+ */
 export function createRange(options?: RangeOptions): Generator<number, any, undefined> {
   let start: number | undefined;
   let end: number | undefined;

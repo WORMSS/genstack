@@ -1,3 +1,18 @@
+/**
+ * Creates a generator that yields RegExpExecArray matches from a string using a regular expression.
+ *
+ * @param reg - The regular expression (as a string or RegExp object) to use for matching.
+ * @param content - The string content to search within.
+ * @returns A generator yielding RegExpExecArray matches.
+ *
+ * @example
+ * ```typescript
+ * const gen = createReg(/\d+/g, '123 abc 456');
+ * for (const match of gen) {
+ *   console.log(match[0]); // '123', then '456'
+ * }
+ * ```
+ */
 export function* createReg(
   reg: string | RegExp,
   content: string,

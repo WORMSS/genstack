@@ -1,5 +1,21 @@
 import type { WalkerChildren } from '../types.ts';
 
+/**
+ * Creates a generator that performs a depth-first traversal of a tree or graph structure.
+ *
+ * @param node - The starting node for the traversal.
+ * @param childrenMapper - A function that returns the children of a given node.
+ * @returns A generator yielding nodes in depth-first order.
+ *
+ * @example
+ * ```typescript
+ * const root = { val: 1, children: [{ val: 2 }, { val: 3 }] };
+ * const walker = createWalker(root, (node) => node.children);
+ * for (const node of walker) {
+ *   console.log(node.val);
+ * }
+ * ```
+ */
 export function createWalker<T>(
   node: T,
   childrenMapper: WalkerChildren<T>,
