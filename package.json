@@ -18,6 +18,7 @@
   },
   "scripts": {
     "test": "vitest --reporter verbose",
+    "test:run": "vitest run --reporter verbose",
     "build:tsup": "tsup"
   },
   "devDependencies": {
