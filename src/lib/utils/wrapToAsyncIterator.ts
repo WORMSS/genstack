@@ -1,3 +1,13 @@
+/**
+ * Wraps a synchronous or asynchronous iterator into an asynchronous iterator.
+ *
+ * @param obj - The iterator or async iterator to wrap.
+ * @returns An async iterator.
+ * @example
+ * ```ts
+ * const asyncIt = wrapToAsyncIterator(syncIterator);
+ * ```
+ */
 export function wrapToAsyncIterator<T, TReturn = any, TNext = undefined>(
   obj: Iterator<T, TReturn, TNext> | AsyncIterator<T, TReturn, TNext>,
 ): AsyncIterator<T, TReturn, TNext> {

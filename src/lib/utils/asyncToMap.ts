@@ -1,5 +1,18 @@
 import type { AsyncToMapOptions } from '../types.ts';
 
+/**
+ * Converts an async iterator into a Map.
+ *
+ * @param it - The async iterator to convert.
+ * @param keyOrOptions - Key maker function or options object.
+ * @param value - Value maker function.
+ * @returns A promise that resolves to a Map.
+ * @example
+ * ```ts
+ * const it = (async function*() { yield { id: 1, val: 'a' }; })();
+ * const map = await asyncToMap(it, { key: (x) => x.id, value: (x) => x.val });
+ * ```
+ */
 export function asyncToMap<T>(it: AsyncIterator<T>): Promise<Map<T, T>>;
 export function asyncToMap<T, K, V>(
   it: AsyncIterator<T>,

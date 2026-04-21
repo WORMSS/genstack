@@ -1,5 +1,18 @@
 import type { ToMapOptions } from '../types.ts';
 
+/**
+ * Converts an iterator into a Map.
+ *
+ * @param it - The iterator to convert.
+ * @param keyOrOptions - Key maker function or options object.
+ * @param value - Value maker function.
+ * @returns A Map.
+ * @example
+ * ```ts
+ * const it = [{ id: 1, val: 'a' }][Symbol.iterator]();
+ * const map = toMap(it, { key: (x) => x.id, value: (x) => x.val });
+ * ```
+ */
 export function toMap<T>(it: Iterator<T>): Map<T, T>;
 export function toMap<T, K, V>(it: Iterator<T>, options: ToMapOptions<T, K, V>): Map<K, V>;
 export function toMap<T, K, V>(
