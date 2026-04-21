@@ -1,3 +1,18 @@
+/**
+ * Creates an async generator that skips values from the input iterator as long as the callback returns true.
+ *
+ * @param it - The source async iterator.
+ * @param callbackFn - A function that returns true while the generator should skip.
+ * @returns An async generator that yields values once the condition is no longer met.
+ * @example
+ * ```ts
+ * const it = (async function*() { yield 1; yield 2; yield 3; yield 4; })();
+ * const skipped = asyncSkipWhileGen(it, (x) => x < 3);
+ * for await (const val of skipped) {
+ *   console.log(val); // 3, 4
+ * }
+ * ```
+ */
 export async function* asyncSkipWhileGen<T>(
   it: AsyncIterator<T>,
   callbackFn: (value: T) => boolean,
